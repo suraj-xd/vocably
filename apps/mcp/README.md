@@ -2,9 +2,9 @@
 
 MCP server for vocabulary management with Claude Desktop.
 
-## Installation
+## Remote MCP Server (Recommended)
 
-Add to your Claude Desktop config:
+The MCP server is hosted at your API server URL. Configure Claude Desktop to use it:
 
 **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
@@ -13,11 +13,9 @@ Add to your Claude Desktop config:
 {
   "mcpServers": {
     "vocably": {
-      "command": "npx",
-      "args": ["@vocably/mcp"],
-      "env": {
-        "VOCABLY_API_TOKEN": "vocably_xxx",
-        "VOCABLY_API_URL": "https://your-api-url"
+      "url": "https://your-api-url/mcp",
+      "headers": {
+        "Authorization": "Bearer vocably_your_token_here"
       }
     }
   }
@@ -45,15 +43,27 @@ Once configured, interact naturally with Claude:
 - "Search for words related to 'happy'"
 - "Remove 'obsolete' from my list"
 
-## Environment Variables
+## Local Installation (Alternative)
 
-- `VOCABLY_API_TOKEN` (required) - Your API token
-- `VOCABLY_API_URL` (optional) - API URL override
-
-## Development
+If you prefer running the MCP server locally:
 
 ```bash
-cd apps/mcp
-bun run dev
-bun run build
+npm install -g @vocably/mcp
+```
+
+Add to Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "vocably": {
+      "command": "npx",
+      "args": ["@vocably/mcp"],
+      "env": {
+        "VOCABLY_API_TOKEN": "vocably_xxx",
+        "VOCABLY_API_URL": "https://your-api-url"
+      }
+    }
+  }
+}
 ```
