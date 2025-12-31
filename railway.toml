@@ -1,10 +1,6 @@
 [build]
 builder = "nixpacks"
-
-[build.nixpacks]
-nixPkgs = ["bun"]
-installCmd = "bun install"
-buildCmd = "echo 'Skipping build - Bun runs TypeScript directly'"
+buildCommand = "echo 'Skipping build - Bun runs TypeScript directly'"
 
 [deploy]
 startCommand = "bun run apps/server/src/index.ts"
