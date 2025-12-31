@@ -1,0 +1,14 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+nixPkgs = ["bun"]
+installCmd = "bun install"
+buildCmd = "bun run build --filter=server"
+
+[deploy]
+startCommand = "bun run apps/server/src/index.ts"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
