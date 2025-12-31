@@ -1,6 +1,6 @@
 # Vocably
 
-Vocabulary management system for Hindi speakers learning English.
+Vocabulary management, anywhere, anytime.
 
 ## Overview
 
