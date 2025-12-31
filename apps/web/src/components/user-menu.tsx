@@ -1,14 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Settings, LogOut, User } from "lucide-react";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 
@@ -16,47 +19,70 @@ import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 export default function UserMenu() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+	const router = useRouter();
+	const { data: session, isPending } = authClient.useSession();
 
-  if (isPending) {
-    return <Skeleton className="h-9 w-24" />;
-  }
+	if (isPending) {
+		return <Skeleton className="h-8 w-20" />;
+	}
 
-  if (!session) {
-    return (
-      <Link href="/login">
-        <Button variant="outline">Sign In</Button>
-      </Link>
-    );
-  }
+	if (!session) {
+		return (
+			<Link href="/login">
+				<Button variant="outline" size="sm">
+					Sign In
+				</Button>
+			</Link>
+		);
+	}
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
-        {session.user.name}
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-card">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push("/");
-                  },
-                },
-              });
-            }}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button variant="ghost" size="sm" className="gap-2">
+					<User className="h-4 w-4" />
+					<span className="hidden sm:inline">{session.user.name}</span>
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end" className="w-56 bg-card">
+				<DropdownMenuLabel className="font-normal">
+					<div className="flex flex-col gap-1">
+						<p className="text-sm font-medium">{session.user.name}</p>
+						<p className="text-xs text-muted-foreground">{session.user.email}</p>
+					</div>
+				</DropdownMenuLabel>
+				<DropdownMenuSeparator />
+				<DropdownMenuGroup>
+					<DropdownMenuItem asChild>
+						<Link href="/dashboard" className="cursor-pointer">
+							<User className="mr-2 h-4 w-4" />
+							Dashboard
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem asChild>
+						<Link href="/dashboard/settings" className="cursor-pointer">
+							<Settings className="mr-2 h-4 w-4" />
+							Settings
+						</Link>
+					</DropdownMenuItem>
+				</DropdownMenuGroup>
+				<DropdownMenuSeparator />
+				<DropdownMenuItem
+					variant="destructive"
+					onClick={() => {
+						authClient.signOut({
+							fetchOptions: {
+								onSuccess: () => {
+									router.push("/");
+								},
+							},
+						});
+					}}
+				>
+					<LogOut className="mr-2 h-4 w-4" />
+					Sign Out
+				</DropdownMenuItem>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
 }

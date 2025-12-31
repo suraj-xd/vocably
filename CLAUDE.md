@@ -1,6 +1,6 @@
-# Vocab - Vocabulary Management System
+# Vocably - Vocabulary Management System
 
-A comprehensive vocabulary learning system for Hindi speakers learning English, with web app, CLI, and MCP server.
+A vocabulary learning system for Hindi speakers learning English, with web app, CLI, and MCP server.
 
 ## Project Structure
 
