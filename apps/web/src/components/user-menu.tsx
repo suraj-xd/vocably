@@ -47,12 +47,14 @@ export default function UserMenu() {
 				}
 			/>
 			<DropdownMenuContent align="end" className="w-56 bg-card">
-				<DropdownMenuLabel className="font-normal">
-					<div className="flex flex-col gap-1">
-						<p className="text-sm font-medium">{session.user.name}</p>
-						<p className="text-xs text-muted-foreground">{session.user.email}</p>
-					</div>
-				</DropdownMenuLabel>
+				<DropdownMenuGroup>
+					<DropdownMenuLabel className="font-normal">
+						<div className="flex flex-col gap-1">
+							<p className="text-sm font-medium">{session.user.name}</p>
+							<p className="text-xs text-muted-foreground">{session.user.email}</p>
+						</div>
+					</DropdownMenuLabel>
+				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
