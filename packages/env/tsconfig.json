@@ -1,0 +1,3 @@
+{
+  "extends": "@vocab/config/tsconfig.base.json"
+}

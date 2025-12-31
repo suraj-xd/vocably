@@ -1,0 +1,29 @@
+{
+  "name": "@vocab/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@orpc/server": "catalog:",
+    "@orpc/client": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/zod": "catalog:",
+    "elysia": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:",
+    "@vocab/env": "workspace:*",
+    "@vocab/auth": "workspace:*",
+    "@vocab/db": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@vocab/config": "workspace:*"
+  }
+}
