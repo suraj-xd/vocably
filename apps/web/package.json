@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "@orpc/client": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "^1.12.2",

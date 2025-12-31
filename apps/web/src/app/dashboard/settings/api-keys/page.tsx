@@ -287,16 +287,18 @@ export default function ApiKeysPage() {
 						</p>
 					</div>
 					<div>
-						<p className="text-sm font-medium mb-2">MCP Server</p>
+						<p className="text-sm font-medium mb-2">MCP Server (Remote)</p>
+						<p className="text-xs text-muted-foreground mb-2">
+							Add to Claude Desktop config - no installation required
+						</p>
 						<div className="relative">
 							<pre className="p-3 bg-secondary font-mono text-xs overflow-x-auto pr-12">
 {`{
   "mcpServers": {
     "vocably": {
-      "command": "bunx",
-      "args": ["@vocably/mcp"],
-      "env": {
-        "VOCABLY_API_TOKEN": "vocably_your_token_here"
+      "url": "https://vocably.app/api/mcp",
+      "headers": {
+        "Authorization": "Bearer vocably_your_token_here"
       }
     }
   }
@@ -309,10 +311,9 @@ export default function ApiKeysPage() {
 								onClick={() => handleCopy(`{
   "mcpServers": {
     "vocably": {
-      "command": "bunx",
-      "args": ["@vocably/mcp"],
-      "env": {
-        "VOCABLY_API_TOKEN": "vocably_your_token_here"
+      "url": "https://vocably.app/api/mcp",
+      "headers": {
+        "Authorization": "Bearer vocably_your_token_here"
       }
     }
   }

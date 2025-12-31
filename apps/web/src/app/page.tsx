@@ -109,9 +109,12 @@ export default function Home() {
 							</pre>
 						</div>
 						<div>
-							<p className="text-sm mb-4">Or use the MCP server</p>
-							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto">
-								<code>npx @vocably/mcp</code>
+							<p className="text-sm mb-4">Connect Claude Desktop</p>
+							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
+								<code>{`"vocably": {
+  "url": "https://vocably.app/api/mcp",
+  "headers": { "Authorization": "Bearer ..." }
+}`}</code>
 							</pre>
 						</div>
 					</div>
