@@ -13,7 +13,7 @@ export default function Home() {
 
 	return (
 		<div className="flex flex-col min-h-full">
-			<main className="flex-1">
+			<div className="flex-1">
 				{/* Hero Section */}
 				<section className="container mx-auto max-w-5xl px-4 py-16 md:py-24">
 					<div className="flex flex-col items-center text-center gap-8">
@@ -116,7 +116,7 @@ export default function Home() {
 						</div>
 					</div>
 				</section>
-			</main>
+			</div>
 
 			<Footer />
 		</div>

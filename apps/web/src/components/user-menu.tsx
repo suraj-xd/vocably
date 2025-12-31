@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Settings, LogOut, User } from "lucide-react";
+import { Settings, LogOut, User, LayoutDashboard } from "lucide-react";
 
 import {
 	DropdownMenu,
@@ -38,12 +38,14 @@ export default function UserMenu() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" size="sm" className="gap-2">
-					<User className="h-4 w-4" />
-					<span className="hidden sm:inline">{session.user.name}</span>
-				</Button>
-			</DropdownMenuTrigger>
+			<DropdownMenuTrigger
+				render={
+					<Button variant="ghost" size="sm" className="gap-2">
+						<User className="h-4 w-4" />
+						<span className="hidden sm:inline">{session.user.name}</span>
+					</Button>
+				}
+			/>
 			<DropdownMenuContent align="end" className="w-56 bg-card">
 				<DropdownMenuLabel className="font-normal">
 					<div className="flex flex-col gap-1">
@@ -53,17 +55,13 @@ export default function UserMenu() {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<DropdownMenuItem asChild>
-						<Link href="/dashboard" className="cursor-pointer">
-							<User className="mr-2 h-4 w-4" />
-							Dashboard
-						</Link>
+					<DropdownMenuItem onClick={() => router.push("/dashboard")}>
+						<LayoutDashboard className="mr-2 h-4 w-4" />
+						Dashboard
 					</DropdownMenuItem>
-					<DropdownMenuItem asChild>
-						<Link href="/dashboard/settings" className="cursor-pointer">
-							<Settings className="mr-2 h-4 w-4" />
-							Settings
-						</Link>
+					<DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+						<Settings className="mr-2 h-4 w-4" />
+						Settings
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />

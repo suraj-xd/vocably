@@ -1,6 +1,7 @@
 {
-  "name": "@vocab/cli",
+  "name": "@vocably/cli",
   "version": "0.1.0",
+  "description": "Vocabulary management CLI for Hindi speakers learning English",
   "type": "module",
   "bin": {
     "vocab": "./bin/vocab.ts"
@@ -10,9 +11,30 @@
     "build": "bun build ./bin/vocab.ts --outdir ./dist --target node",
     "check-types": "tsc --noEmit"
   },
+  "keywords": [
+    "vocabulary",
+    "english",
+    "hindi",
+    "learning",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/suraj-xd/vocably.git",
+    "directory": "apps/cli"
+  },
+  "homepage": "https://github.com/suraj-xd/vocably#readme",
+  "license": "MIT",
+  "author": "suraj-xd",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "dist"
+  ],
   "dependencies": {
-    "@vocab/api": "workspace:*",
-    "@orpc/client": "catalog:",
     "commander": "^13.1.0",
     "chalk": "^5.4.1",
     "ora": "^8.2.0"

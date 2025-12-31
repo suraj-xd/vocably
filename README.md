@@ -1,25 +1,35 @@
-# Vocably
+# Vocab
 
-Vocabulary management system for Hindi speakers learning English.
+A vocabulary learning system for Hindi speakers learning English. Access your vocabulary from the web, terminal, or directly through Claude.
 
 ## Overview
 
-Web app, CLI, and MCP server for building and reviewing vocabulary with AI-powered definitions.
+Vocab provides three interfaces to manage your vocabulary:
 
-**Stack:** Next.js 16, Elysia, oRPC, Supabase, Drizzle ORM, Vercel AI SDK
+- **Web App** - Browser-based dashboard with visual progress tracking
+- **CLI** - Terminal-first workflow for quick additions
+- **MCP Server** - AI-native interface that works directly with Claude
+
+All interfaces sync to the same backend, so your vocabulary is always up to date.
 
 ## Quick Start
 
+### Prerequisites
+
+- [Bun](https://bun.sh) v1.3+
+- PostgreSQL database (or Supabase)
+
+### Installation
+
 ```bash
-git clone https://github.com/suraj-xd/vocably.git
-cd vocably
+git clone <repo-url>
+cd vocab
 bun install
 ```
 
 ### Environment Setup
 
 ```bash
-# Copy example files
 cp .env.example apps/server/.env
 cp apps/web/.env.example apps/web/.env
 ```
@@ -52,9 +62,6 @@ bun run dev       # Start servers
 ## CLI
 
 ```bash
-# Install globally
-cd apps/cli && bun link
-
 # Authenticate
 vocab auth login
 
@@ -62,9 +69,11 @@ vocab auth login
 vocab add "serendipity"
 vocab add "ephemeral" --context "From a poem"
 vocab list
-vocab search "happi"
+vocab search "luck"
 vocab remove "serendipity"
 ```
+
+See [apps/cli/README.md](apps/cli/README.md) for full documentation.
 
 ## MCP Server
 
@@ -76,11 +85,10 @@ Add to Claude Desktop config:
 {
   "mcpServers": {
     "vocab": {
-      "command": "bun",
-      "args": ["run", "/path/to/vocably/apps/mcp/src/index.ts"],
+      "command": "npx",
+      "args": ["@vocab/mcp"],
       "env": {
-        "VOCAB_API_TOKEN": "vocab_xxx",
-        "VOCAB_API_URL": "http://localhost:3000"
+        "VOCAB_API_TOKEN": "vocab_xxx"
       }
     }
   }
@@ -89,10 +97,12 @@ Add to Claude Desktop config:
 
 Get your API token from Settings > API Keys in the web app.
 
+See [apps/mcp/README.md](apps/mcp/README.md) for full documentation.
+
 ## Project Structure
 
 ```
-vocably/
+vocab/
 ├── apps/
 │   ├── web/      # Next.js frontend
 │   ├── server/   # Elysia API
@@ -101,8 +111,18 @@ vocably/
 └── packages/
     ├── api/      # oRPC routers
     ├── auth/     # Better-Auth config
-    └── db/       # Drizzle schemas
+    ├── db/       # Drizzle schemas
+    └── env/      # Environment validation
 ```
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TailwindCSS, shadcn/ui
+- **Backend**: Elysia, oRPC
+- **Database**: PostgreSQL with Drizzle ORM
+- **Auth**: Better-Auth (web) + API tokens (CLI/MCP)
+- **AI**: Vercel AI SDK with user-provided keys
+- **Monorepo**: Turborepo, Bun
 
 ## Scripts
 
@@ -113,6 +133,7 @@ bun run dev:server   # API only
 bun run db:push      # Apply schema
 bun run db:studio    # Database GUI
 bun run build        # Production build
+bun run check-types  # Type checking
 ```
 
 ## License
