@@ -74,9 +74,11 @@ export const verification = pgTable(
 );
 
 export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}));
+	sessions: many(session),
+	accounts: many(account),
+	// Note: words, categories, apiTokens, userSettings relations
+	// are defined in their respective schema files
+}))
 
 export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, {

@@ -1,0 +1,21 @@
+{
+  "name": "@vocab/mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "xmcp dev",
+    "build": "xmcp build",
+    "start": "node dist/stdio.js",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "catalog:",
+    "xmcp": "^0.5.6",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@vocab/config": "workspace:*",
+    "typescript": "catalog:",
+    "@types/bun": "catalog:"
+  }
+}

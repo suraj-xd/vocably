@@ -1,0 +1,25 @@
+{
+  "name": "@vocab/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "vocab": "./bin/vocab.ts"
+  },
+  "scripts": {
+    "dev": "bun run bin/vocab.ts",
+    "build": "bun build ./bin/vocab.ts --outdir ./dist --target node",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vocab/api": "workspace:*",
+    "@orpc/client": "catalog:",
+    "commander": "^13.1.0",
+    "chalk": "^5.4.1",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "@vocab/config": "workspace:*",
+    "typescript": "catalog:",
+    "@types/bun": "catalog:"
+  }
+}

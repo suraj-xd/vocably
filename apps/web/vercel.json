@@ -1,0 +1,8 @@
+{
+	"crons": [
+		{
+			"path": "/api/cron/daily-word",
+			"schedule": "0 0 * * *"
+		}
+	]
+}
