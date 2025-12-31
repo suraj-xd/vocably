@@ -1,4 +1,4 @@
-# Vocab
+# Vocably
 
 A vocabulary learning system for Hindi speakers learning English. Access your vocabulary from the web, terminal, or directly through Claude.
 
