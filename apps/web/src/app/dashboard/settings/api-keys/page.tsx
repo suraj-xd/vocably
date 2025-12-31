@@ -296,7 +296,7 @@ export default function ApiKeysPage() {
 {`{
   "mcpServers": {
     "vocably": {
-      "url": "https://vocably.app/api/mcp",
+      "url": "https://vocab.surajgaud.com/api/mcp",
       "headers": {
         "Authorization": "Bearer vocably_your_token_here"
       }
@@ -311,7 +311,7 @@ export default function ApiKeysPage() {
 								onClick={() => handleCopy(`{
   "mcpServers": {
     "vocably": {
-      "url": "https://vocably.app/api/mcp",
+      "url": "https://vocab.surajgaud.com/api/mcp",
       "headers": {
         "Authorization": "Bearer vocably_your_token_here"
       }

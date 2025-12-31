@@ -112,7 +112,7 @@ export default function Home() {
 							<p className="text-sm mb-4">Connect Claude Desktop</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
 								<code>{`"vocably": {
-  "url": "https://vocably.app/api/mcp",
+  "url": "https://vocab.surajgaud.com/api/mcp",
   "headers": { "Authorization": "Bearer ..." }
 }`}</code>
 							</pre>
