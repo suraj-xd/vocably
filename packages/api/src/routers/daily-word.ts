@@ -7,7 +7,7 @@ import {
 	addDailyWordToUser,
 	processDailyWordForAllUsers,
 } from "../lib/daily-word-service";
-import { env } from "@vocab/env/server";
+import { env } from "@vocably/env/server";
 
 export const dailyWordRouter = {
 	// Get today's word of the day (public - no auth required)

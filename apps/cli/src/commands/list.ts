@@ -35,7 +35,7 @@ export const listCommand = new Command("list")
 
 			if (result.words.length === 0) {
 				console.log(chalk.yellow("No words found."));
-				console.log(chalk.dim("Add your first word with: vocab add <word>"));
+				console.log(chalk.dim("Add your first word with: vocably add <word>"));
 				return;
 			}
 

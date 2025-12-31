@@ -4,7 +4,7 @@
   "description": "Vocabulary management CLI for Hindi speakers learning English",
   "type": "module",
   "bin": {
-    "vocab": "./bin/vocab.ts"
+    "vocably": "./bin/vocab.ts"
   },
   "scripts": {
     "dev": "bun run bin/vocab.ts",
@@ -40,7 +40,7 @@
     "ora": "^8.2.0"
   },
   "devDependencies": {
-    "@vocab/config": "workspace:*",
+    "@vocably/config": "workspace:*",
     "typescript": "catalog:",
     "@types/bun": "catalog:"
   }

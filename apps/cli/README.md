@@ -1,115 +1,96 @@
-# @vocab/cli
+# @vocably/cli
 
-Command-line interface for the Vocab vocabulary learning system.
+Command-line interface for vocabulary management.
 
 ## Installation
 
 ```bash
-# Global installation (when published)
-npm install -g @vocab/cli
-
-# Or run directly with npx
-npx @vocab/cli add "serendipity"
+npm install -g @vocably/cli
+# or
+bunx @vocably/cli add "serendipity"
 ```
 
 ## Setup
 
-Before using the CLI, authenticate with your Vocab account:
-
 ```bash
-vocab auth login
+vocably auth login <token>
 ```
 
-This opens a browser window to generate an API token. The token is stored locally in `~/.vocab/config.json`.
+Get your API token from Settings > API Keys in the web dashboard. Token is stored in `~/.vocably/config.json`.
 
 ## Commands
 
 ### add
 
-Add a new vocabulary word.
-
 ```bash
-vocab add <word> [options]
+vocably add <word> [options]
 
 Options:
-  -n, --notes <notes>      Personal notes about the word
+  -n, --notes <notes>      Personal notes
   -c, --context <context>  Where you encountered the word
-  --no-ai                  Skip AI-powered definition generation
+  --no-ai                  Skip AI-powered definition
 ```
 
 Examples:
 
 ```bash
-vocab add "serendipity"
-vocab add "ephemeral" --notes "heard in a podcast"
-vocab add "ubiquitous" --context "tech article" --no-ai
+vocably add "serendipity"
+vocably add "ephemeral" --notes "heard in a podcast"
+vocably add "ubiquitous" --context "tech article" --no-ai
 ```
 
 ### list
 
-List your vocabulary words.
-
 ```bash
-vocab list [options]
+vocably list [options]
 
 Options:
-  -l, --limit <number>  Number of words to show (default: 20)
+  -l, --limit <number>  Number of words (default: 20)
   --category <name>     Filter by category
 ```
 
 ### search
 
-Search your vocabulary.
-
 ```bash
-vocab search <query>
+vocably search <query>
 ```
 
 ### remove
 
-Remove a word from your vocabulary.
-
 ```bash
-vocab remove <word>
+vocably remove <word>
 ```
 
 ### auth
 
-Manage authentication.
-
 ```bash
-vocab auth login   # Authenticate with your account
-vocab auth logout  # Remove stored credentials
-vocab auth status  # Check authentication status
+vocably auth login <token>   # Authenticate
+vocably auth logout          # Remove credentials
+vocably auth status          # Check status
 ```
 
 ### config
 
-View and manage configuration.
-
 ```bash
-vocab config show  # Display current configuration
-vocab config path  # Show config file location
+vocably config show  # Display configuration
+vocably config path  # Show config file location
 ```
 
 ## Configuration
 
-Configuration is stored in `~/.vocab/config.json`:
+Stored in `~/.vocably/config.json`:
 
 ```json
 {
-  "apiUrl": "https://api.vocab.app",
-  "apiToken": "vocab_xxxx..."
+  "apiUrl": "https://your-api-url",
+  "token": "vocably_xxxx..."
 }
 ```
 
 ## Development
 
 ```bash
-# From monorepo root
-bun run --filter @vocab/cli dev -- <command>
-
-# Examples
-bun run --filter @vocab/cli dev -- add "test"
-bun run --filter @vocab/cli dev -- list
+bun run --filter @vocably/cli dev -- <command>
+bun run --filter @vocably/cli dev -- add "test"
+bun run --filter @vocably/cli dev -- list
 ```

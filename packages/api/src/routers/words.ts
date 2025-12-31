@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../index";
-import { db } from "@vocab/db";
-import { word, category, wordRelationship } from "@vocab/db/schema";
+import { db } from "@vocably/db";
+import { word, category, wordRelationship } from "@vocably/db/schema";
 import { eq, desc, and, or, ilike } from "drizzle-orm";
 import { generateVocabularyData, isAIAvailable } from "../lib/ai-service";
 

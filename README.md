@@ -1,35 +1,25 @@
 # Vocably
 
-A vocabulary learning system for Hindi speakers learning English. Access your vocabulary from the web, terminal, or directly through Claude.
+Vocabulary management system for Hindi speakers learning English.
 
 ## Overview
 
-Vocab provides three interfaces to manage your vocabulary:
+Web app, CLI, and MCP server for building and reviewing vocabulary with AI-powered definitions.
 
-- **Web App** - Browser-based dashboard with visual progress tracking
-- **CLI** - Terminal-first workflow for quick additions
-- **MCP Server** - AI-native interface that works directly with Claude
-
-All interfaces sync to the same backend, so your vocabulary is always up to date.
+**Stack:** Next.js 16, Elysia, oRPC, Supabase, Drizzle ORM, Vercel AI SDK
 
 ## Quick Start
 
-### Prerequisites
-
-- [Bun](https://bun.sh) v1.3+
-- PostgreSQL database (or Supabase)
-
-### Installation
-
 ```bash
-git clone <repo-url>
-cd vocab
+git clone https://github.com/suraj-xd/vocably.git
+cd vocably
 bun install
 ```
 
 ### Environment Setup
 
 ```bash
+# Copy example files
 cp .env.example apps/server/.env
 cp apps/web/.env.example apps/web/.env
 ```
@@ -62,18 +52,19 @@ bun run dev       # Start servers
 ## CLI
 
 ```bash
+# Install globally
+cd apps/cli && bun link
+
 # Authenticate
-vocab auth login
+vocably auth login <token>
 
 # Usage
-vocab add "serendipity"
-vocab add "ephemeral" --context "From a poem"
-vocab list
-vocab search "luck"
-vocab remove "serendipity"
+vocably add "serendipity"
+vocably add "ephemeral" --context "From a poem"
+vocably list
+vocably search "happi"
+vocably remove "serendipity"
 ```
-
-See [apps/cli/README.md](apps/cli/README.md) for full documentation.
 
 ## MCP Server
 
@@ -84,11 +75,12 @@ Add to Claude Desktop config:
 ```json
 {
   "mcpServers": {
-    "vocab": {
-      "command": "npx",
-      "args": ["@vocab/mcp"],
+    "vocably": {
+      "command": "bun",
+      "args": ["run", "/path/to/vocably/apps/mcp/src/index.ts"],
       "env": {
-        "VOCAB_API_TOKEN": "vocab_xxx"
+        "VOCABLY_API_TOKEN": "vocably_xxx",
+        "VOCABLY_API_URL": "http://localhost:3000"
       }
     }
   }
@@ -97,12 +89,10 @@ Add to Claude Desktop config:
 
 Get your API token from Settings > API Keys in the web app.
 
-See [apps/mcp/README.md](apps/mcp/README.md) for full documentation.
-
 ## Project Structure
 
 ```
-vocab/
+vocably/
 ├── apps/
 │   ├── web/      # Next.js frontend
 │   ├── server/   # Elysia API
@@ -111,18 +101,8 @@ vocab/
 └── packages/
     ├── api/      # oRPC routers
     ├── auth/     # Better-Auth config
-    ├── db/       # Drizzle schemas
-    └── env/      # Environment validation
+    └── db/       # Drizzle schemas
 ```
-
-## Tech Stack
-
-- **Frontend**: Next.js 16, React 19, TailwindCSS, shadcn/ui
-- **Backend**: Elysia, oRPC
-- **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: Better-Auth (web) + API tokens (CLI/MCP)
-- **AI**: Vercel AI SDK with user-provided keys
-- **Monorepo**: Turborepo, Bun
 
 ## Scripts
 
@@ -133,7 +113,6 @@ bun run dev:server   # API only
 bun run db:push      # Apply schema
 bun run db:studio    # Database GUI
 bun run build        # Production build
-bun run check-types  # Type checking
 ```
 
 ## License

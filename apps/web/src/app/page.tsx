@@ -105,13 +105,13 @@ export default function Home() {
 						<div>
 							<p className="text-sm mb-4">Install the CLI</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto">
-								<code>npm install -g @vocab/cli</code>
+								<code>npm install -g @vocably/cli</code>
 							</pre>
 						</div>
 						<div>
 							<p className="text-sm mb-4">Or use the MCP server</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto">
-								<code>npx @vocab/mcp</code>
+								<code>npx @vocably/mcp</code>
 							</pre>
 						</div>
 					</div>

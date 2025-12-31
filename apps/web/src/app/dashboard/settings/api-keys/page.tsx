@@ -267,13 +267,13 @@ export default function ApiKeysPage() {
 						<p className="text-sm font-medium mb-2">CLI</p>
 						<div className="relative">
 							<div className="p-3 bg-secondary font-mono text-sm pr-12">
-								vocab auth login YOUR_API_KEY
+								vocably auth login YOUR_API_KEY
 							</div>
 							<Button
 								variant="ghost"
 								size="sm"
 								className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
-								onClick={() => handleCopy("vocab auth login YOUR_API_KEY", "cli")}
+								onClick={() => handleCopy("vocably auth login YOUR_API_KEY", "cli")}
 							>
 								{copiedId === "cli" ? (
 									<Check className="w-3.5 h-3.5" />
@@ -292,11 +292,11 @@ export default function ApiKeysPage() {
 							<pre className="p-3 bg-secondary font-mono text-xs overflow-x-auto pr-12">
 {`{
   "mcpServers": {
-    "vocab": {
+    "vocably": {
       "command": "bunx",
-      "args": ["@vocab/mcp"],
+      "args": ["@vocably/mcp"],
       "env": {
-        "VOCAB_API_TOKEN": "vocab_your_token_here"
+        "VOCABLY_API_TOKEN": "vocably_your_token_here"
       }
     }
   }
@@ -308,11 +308,11 @@ export default function ApiKeysPage() {
 								className="absolute right-1 top-2 h-7 w-7 p-0"
 								onClick={() => handleCopy(`{
   "mcpServers": {
-    "vocab": {
+    "vocably": {
       "command": "bunx",
-      "args": ["@vocab/mcp"],
+      "args": ["@vocably/mcp"],
       "env": {
-        "VOCAB_API_TOKEN": "vocab_your_token_here"
+        "VOCABLY_API_TOKEN": "vocably_your_token_here"
       }
     }
   }

@@ -1,5 +1,5 @@
 {
-  "name": "@vocab/auth",
+  "name": "@vocably/auth",
   "type": "module",
   "exports": {
     ".": {
@@ -12,13 +12,13 @@
   "scripts": {},
   "devDependencies": {
     "typescript": "catalog:",
-    "@vocab/config": "workspace:*"
+    "@vocably/config": "workspace:*"
   },
   "dependencies": {
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@vocab/env": "workspace:*",
-    "@vocab/db": "workspace:*"
+    "@vocably/env": "workspace:*",
+    "@vocably/db": "workspace:*"
   }
 }

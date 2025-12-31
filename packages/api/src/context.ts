@@ -1,9 +1,9 @@
 import type { Context as ElysiaContext } from "elysia";
 import { createHash } from "crypto";
 
-import { auth } from "@vocab/auth";
-import { db } from "@vocab/db";
-import { apiToken } from "@vocab/db/schema";
+import { auth } from "@vocably/auth";
+import { db } from "@vocably/db";
+import { apiToken } from "@vocably/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export type CreateContextOptions = {

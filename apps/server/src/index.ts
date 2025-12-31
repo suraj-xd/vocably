@@ -4,10 +4,10 @@ import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
-import { createContext } from "@vocab/api/context";
-import { appRouter } from "@vocab/api/routers/index";
-import { auth } from "@vocab/auth";
-import { env } from "@vocab/env/server";
+import { createContext } from "@vocably/api/context";
+import { appRouter } from "@vocably/api/routers/index";
+import { auth } from "@vocably/auth";
+import { env } from "@vocably/env/server";
 import { Elysia } from "elysia";
 
 const rpcHandler = new RPCHandler(appRouter, {

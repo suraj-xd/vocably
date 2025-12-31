@@ -1,5 +1,5 @@
-import { db } from "@vocab/db";
-import { dailyWord, userDailyWord, word, user } from "@vocab/db/schema";
+import { db } from "@vocably/db";
+import { dailyWord, userDailyWord, word, user } from "@vocably/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { DAILY_WORDS, TOTAL_DAILY_WORDS } from "../data/daily-words";
 import { generateVocabularyData, isAIAvailable } from "./ai-service";
@@ -153,7 +153,7 @@ export async function addDailyWordToUser(
 	// Find or create category if AI generated one
 	let categoryId: string | undefined;
 	if (aiData.categoryName) {
-		const { category } = await import("@vocab/db/schema");
+		const { category } = await import("@vocably/db/schema");
 		const existingCategory = await db.query.category.findFirst({
 			where: and(
 				eq(category.userId, userId),

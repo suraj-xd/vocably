@@ -9,21 +9,21 @@ export const authCommand = new Command("auth")
 authCommand
 	.command("login")
 	.description("Configure API token for authentication")
-	.argument("<token>", "API token from your vocab dashboard")
+	.argument("<token>", "API token from your vocably dashboard")
 	.action(async (token: string) => {
 		const spinner = ora("Validating token...").start();
 
 		try {
 			// Validate token format
-			if (!token.startsWith("vocab_")) {
-				spinner.fail(chalk.red("Invalid token format. Token should start with 'vocab_'"));
+			if (!token.startsWith("vocably_")) {
+				spinner.fail(chalk.red("Invalid token format. Token should start with 'vocably_'"));
 				process.exit(1);
 			}
 
 			// Save the token
 			saveConfig({ token });
 			spinner.succeed(chalk.green("Token saved successfully!"));
-			console.log(chalk.dim("\nYou can now use vocab commands."));
+			console.log(chalk.dim("\nYou can now use vocably commands."));
 		} catch (error) {
 			spinner.fail(chalk.red("Failed to save token"));
 			console.error(error instanceof Error ? error.message : error);
@@ -50,6 +50,6 @@ authCommand
 			console.log(chalk.dim(`Token: ${config.token?.slice(0, 12)}...`));
 		} else {
 			console.log(chalk.yellow("Not authenticated"));
-			console.log(chalk.dim("Run `vocab auth login <token>` to authenticate."));
+			console.log(chalk.dim("Run `vocably auth login <token>` to authenticate."));
 		}
 	});

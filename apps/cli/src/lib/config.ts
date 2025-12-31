@@ -2,7 +2,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 
-const CONFIG_DIR = join(homedir(), ".vocab");
+const CONFIG_DIR = join(homedir(), ".vocably");
 const CONFIG_FILE = join(CONFIG_DIR, "config.json");
 
 export interface CliConfig {

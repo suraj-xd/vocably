@@ -10,7 +10,7 @@ import { configCommand } from "../src/commands/config";
 const program = new Command();
 
 program
-	.name("vocab")
+	.name("vocably")
 	.description("Vocabulary management CLI - Learn and remember English words")
 	.version("0.1.0");
 

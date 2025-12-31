@@ -1,4 +1,4 @@
-import { env } from "@vocab/env/web";
+import { env } from "@vocably/env/web";
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({

@@ -3,9 +3,9 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
-import { env } from "@vocab/env/server";
-import { db } from "@vocab/db";
-import { userSettings } from "@vocab/db/schema";
+import { env } from "@vocably/env/server";
+import { db } from "@vocably/db";
+import { userSettings } from "@vocably/db/schema";
 import { eq } from "drizzle-orm";
 
 // Schema for AI-generated vocabulary data (simplified for compatibility)

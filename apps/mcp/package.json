@@ -37,7 +37,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@vocab/config": "workspace:*",
+    "@vocably/config": "workspace:*",
     "typescript": "catalog:",
     "@types/bun": "catalog:"
   }

@@ -22,7 +22,7 @@ export const removeCommand = new Command("remove")
 			if (error instanceof ApiError) {
 				console.error(chalk.dim(`Error: ${error.message}`));
 				if (error.code === "NOT_FOUND") {
-					console.error(chalk.dim("Tip: Use `vocab list` to see your existing words."));
+					console.error(chalk.dim("Tip: Use `vocably list` to see your existing words."));
 				}
 			} else {
 				console.error(chalk.dim(error instanceof Error ? error.message : String(error)));

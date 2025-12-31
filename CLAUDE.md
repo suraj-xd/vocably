@@ -5,12 +5,12 @@ A vocabulary learning system for Hindi speakers learning English, with web app, 
 ## Project Structure
 
 ```
-vocab/
+vocably/
 ├── apps/
 │   ├── web/        # Next.js web application (port 3001)
 │   ├── server/     # Elysia API server (port 3000)
-│   ├── cli/        # @vocab/cli - Terminal commands
-│   └── mcp/        # @vocab/mcp - MCP server for Claude
+│   ├── cli/        # @vocably/cli - Terminal commands
+│   └── mcp/        # @vocably/mcp - MCP server for Claude
 ├── packages/
 │   ├── api/        # oRPC routers and procedures
 │   ├── auth/       # Better-Auth configuration
@@ -32,7 +32,7 @@ vocab/
 
 ### Authentication
 - **Web**: Better-Auth with email/password + OAuth
-- **CLI/MCP**: API tokens (`vocab_xxxx`) validated server-side
+- **CLI/MCP**: API tokens (`vocably_xxxx`) validated server-side
 
 ### Database Schema
 - `word` - Vocabulary words with AI-generated data
@@ -62,7 +62,7 @@ bun run db:push      # Apply schema changes
 bun run db:studio    # Open Drizzle Studio
 
 # CLI (local development)
-bun run --filter @vocab/cli dev -- add "serendipity"
+bun run --filter @vocably/cli dev -- add "serendipity"
 ```
 
 ## API Routes

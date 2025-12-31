@@ -1,6 +1,6 @@
-# @vocab/web
+# @vocably/web
 
-Next.js web application for the Vocab vocabulary learning system.
+Next.js web application for vocabulary management.
 
 ## Features
 
@@ -8,28 +8,23 @@ Next.js web application for the Vocab vocabulary learning system.
 - Word cards with definitions, examples, and Hindi translations
 - AI-powered word enrichment
 - Text-to-speech pronunciation
-- Progress tracking
 - Dark/light theme
 
 ## Development
 
 ```bash
-# From the monorepo root
 bun run dev:web
-
-# Or directly
-cd apps/web
-bun run dev
 ```
 
-Runs on `http://localhost:3001`.
+Runs on http://localhost:3001
 
 ## Environment Variables
 
-The web app uses shared environment configuration from `@vocab/env`. Required variables:
+Required in `apps/web/.env`:
 
-- `NEXT_PUBLIC_API_URL` - Backend API URL (default: `http://localhost:3000`)
-- `BETTER_AUTH_URL` - Auth callback URL
+```env
+NEXT_PUBLIC_SERVER_URL="http://localhost:3000"
+```
 
 ## Project Structure
 
@@ -38,10 +33,10 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── page.tsx           # Landing page
 │   ├── login/             # Authentication
-│   └── dashboard/         # Protected vocabulary dashboard
+│   └── dashboard/         # Vocabulary dashboard
 ├── components/
 │   ├── ui/                # shadcn/ui components
-│   ├── vocab/             # Vocabulary-specific components
+│   ├── vocab/             # Vocabulary components
 │   └── landing/           # Landing page components
 ├── lib/                   # Utilities and clients
 └── utils/                 # Helper functions
@@ -55,10 +50,3 @@ src/
 - shadcn/ui components
 - JetBrains Mono font
 - Better-Auth for authentication
-
-## Design System
-
-- Monospace typography throughout
-- Sharp edges (0px border radius)
-- True black dark theme
-- Minimal, Vercel-inspired aesthetic

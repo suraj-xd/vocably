@@ -1,4 +1,4 @@
-import "@vocab/env/web";
+import "@vocably/env/web";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {

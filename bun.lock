@@ -5,40 +5,41 @@
     "": {
       "name": "vocab",
       "dependencies": {
-        "@vocab/env": "workspace:*",
+        "@vocably/env": "workspace:*",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.3.10",
         "@types/bun": "catalog:",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "turbo": "^2.6.3",
         "typescript": "catalog:",
       },
     },
     "apps/cli": {
-      "name": "@vocab/cli",
+      "name": "@vocably/cli",
       "version": "0.1.0",
       "bin": {
-        "vocab": "./bin/vocab.ts",
+        "vocably": "./bin/vocab.ts",
       },
       "dependencies": {
-        "@orpc/client": "catalog:",
-        "@vocab/api": "workspace:*",
         "chalk": "^5.4.1",
         "commander": "^13.1.0",
         "ora": "^8.2.0",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "apps/mcp": {
-      "name": "@vocab/mcp",
+      "name": "@vocably/mcp",
       "version": "0.1.0",
+      "bin": {
+        "vocably-mcp": "./dist/stdio.js",
+      },
       "dependencies": {
         "dotenv": "catalog:",
         "xmcp": "^0.5.6",
@@ -46,7 +47,7 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -57,10 +58,10 @@
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@vocab/api": "workspace:*",
-        "@vocab/auth": "workspace:*",
-        "@vocab/db": "workspace:*",
-        "@vocab/env": "workspace:*",
+        "@vocably/api": "workspace:*",
+        "@vocably/auth": "workspace:*",
+        "@vocably/db": "workspace:*",
+        "@vocably/env": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "elysia": "catalog:",
@@ -68,7 +69,7 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "tsdown": "^0.16.5",
         "typescript": "catalog:",
       },
@@ -84,9 +85,9 @@
         "@radix-ui/react-dialog": "^1.1.15",
         "@tanstack/react-form": "^1.27.3",
         "@tanstack/react-query": "^5.90.12",
-        "@vocab/api": "workspace:*",
-        "@vocab/auth": "workspace:*",
-        "@vocab/env": "workspace:*",
+        "@vocably/api": "workspace:*",
+        "@vocably/auth": "workspace:*",
+        "@vocably/env": "workspace:*",
         "babel-plugin-react-compiler": "^1.0.0",
         "better-auth": "catalog:",
         "class-variance-authority": "^0.7.1",
@@ -110,13 +111,13 @@
         "@types/node": "^20",
         "@types/react": "^19.2.7",
         "@types/react-dom": "^19.2.3",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "tailwindcss": "^4.1.10",
         "typescript": "catalog:",
       },
     },
     "packages/api": {
-      "name": "@vocab/api",
+      "name": "@vocably/api",
       "dependencies": {
         "@ai-sdk/anthropic": "^3.0.0",
         "@ai-sdk/google": "^3.0.0",
@@ -125,9 +126,9 @@
         "@orpc/openapi": "catalog:",
         "@orpc/server": "catalog:",
         "@orpc/zod": "catalog:",
-        "@vocab/auth": "workspace:*",
-        "@vocab/db": "workspace:*",
-        "@vocab/env": "workspace:*",
+        "@vocably/auth": "workspace:*",
+        "@vocably/db": "workspace:*",
+        "@vocably/env": "workspace:*",
         "ai": "^6.0.0",
         "dotenv": "catalog:",
         "drizzle-orm": "^0.45.1",
@@ -135,32 +136,32 @@
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/auth": {
-      "name": "@vocab/auth",
+      "name": "@vocably/auth",
       "dependencies": {
-        "@vocab/db": "workspace:*",
-        "@vocab/env": "workspace:*",
+        "@vocably/db": "workspace:*",
+        "@vocably/env": "workspace:*",
         "better-auth": "catalog:",
         "dotenv": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/config": {
-      "name": "@vocab/config",
+      "name": "@vocably/config",
       "version": "0.0.0",
     },
     "packages/db": {
-      "name": "@vocab/db",
+      "name": "@vocably/db",
       "dependencies": {
-        "@vocab/env": "workspace:*",
+        "@vocably/env": "workspace:*",
         "dotenv": "catalog:",
         "drizzle-orm": "^0.45.1",
         "pg": "^8.16.3",
@@ -168,13 +169,13 @@
       },
       "devDependencies": {
         "@types/pg": "^8.15.6",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "drizzle-kit": "^0.31.8",
         "typescript": "catalog:",
       },
     },
     "packages/env": {
-      "name": "@vocab/env",
+      "name": "@vocably/env",
       "version": "0.0.0",
       "dependencies": {
         "@t3-oss/env-core": "^0.13.1",
@@ -184,7 +185,7 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
-        "@vocab/config": "workspace:*",
+        "@vocably/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -742,19 +743,19 @@
 
     "@vercel/oidc": ["@vercel/oidc@3.0.5", "", {}, "sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw=="],
 
-    "@vocab/api": ["@vocab/api@workspace:packages/api"],
+    "@vocably/api": ["@vocably/api@workspace:packages/api"],
 
-    "@vocab/auth": ["@vocab/auth@workspace:packages/auth"],
+    "@vocably/auth": ["@vocably/auth@workspace:packages/auth"],
 
-    "@vocab/cli": ["@vocab/cli@workspace:apps/cli"],
+    "@vocably/cli": ["@vocably/cli@workspace:apps/cli"],
 
-    "@vocab/config": ["@vocab/config@workspace:packages/config"],
+    "@vocably/config": ["@vocably/config@workspace:packages/config"],
 
-    "@vocab/db": ["@vocab/db@workspace:packages/db"],
+    "@vocably/db": ["@vocably/db@workspace:packages/db"],
 
-    "@vocab/env": ["@vocab/env@workspace:packages/env"],
+    "@vocably/env": ["@vocably/env@workspace:packages/env"],
 
-    "@vocab/mcp": ["@vocab/mcp@workspace:apps/mcp"],
+    "@vocably/mcp": ["@vocably/mcp@workspace:apps/mcp"],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 

@@ -1,7 +1,7 @@
 import "dotenv/config";
 
-const API_URL = process.env.VOCAB_API_URL || "http://localhost:3000";
-const API_TOKEN = process.env.VOCAB_API_TOKEN || "";
+const API_URL = process.env.VOCABLY_API_URL || "http://localhost:3000";
+const API_TOKEN = process.env.VOCABLY_API_TOKEN || "";
 
 interface ApiRequestOptions extends Omit<RequestInit, "body"> {
 	body?: Record<string, unknown>;
@@ -57,7 +57,7 @@ export async function apiRequest<T>(
 ): Promise<T> {
 	if (!API_TOKEN) {
 		throw new ApiError(
-			"VOCAB_API_TOKEN environment variable is required",
+			"VOCABLY_API_TOKEN environment variable is required",
 			"NOT_CONFIGURED",
 			500,
 		);

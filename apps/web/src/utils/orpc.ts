@@ -1,10 +1,10 @@
-import type { AppRouterClient } from "@vocab/api/routers/index";
+import type { AppRouterClient } from "@vocably/api/routers/index";
 
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
-import { env } from "@vocab/env/web";
+import { env } from "@vocably/env/web";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({

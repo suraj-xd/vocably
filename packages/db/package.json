@@ -1,5 +1,5 @@
 {
-  "name": "@vocab/db",
+  "name": "@vocably/db",
   "type": "module",
   "exports": {
     ".": {
@@ -22,13 +22,13 @@
     "drizzle-kit": "^0.31.8",
     "@types/pg": "^8.15.6",
     "typescript": "catalog:",
-    "@vocab/config": "workspace:*"
+    "@vocably/config": "workspace:*"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
     "pg": "^8.16.3",
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@vocab/env": "workspace:*"
+    "@vocably/env": "workspace:*"
   }
 }

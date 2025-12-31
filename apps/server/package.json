@@ -18,15 +18,15 @@
     "better-auth": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@vocab/env": "workspace:*",
-    "@vocab/api": "workspace:*",
-    "@vocab/auth": "workspace:*",
-    "@vocab/db": "workspace:*"
+    "@vocably/env": "workspace:*",
+    "@vocably/api": "workspace:*",
+    "@vocably/auth": "workspace:*",
+    "@vocably/db": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:",
     "tsdown": "^0.16.5",
-    "@vocab/config": "workspace:*"
+    "@vocably/config": "workspace:*"
   }
 }

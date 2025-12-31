@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../index";
-import { db } from "@vocab/db";
-import { userSettings } from "@vocab/db/schema";
+import { db } from "@vocably/db";
+import { userSettings } from "@vocably/db/schema";
 import { eq } from "drizzle-orm";
 
 const updateSettingsInput = z.object({

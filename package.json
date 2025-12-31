@@ -1,5 +1,5 @@
 {
-  "name": "vocab",
+  "name": "vocably",
   "private": true,
   "workspaces": {
     "packages": [
@@ -27,20 +27,20 @@
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
-    "db:push": "turbo -F @vocab/db db:push",
-    "db:studio": "turbo -F @vocab/db db:studio",
-    "db:generate": "turbo -F @vocab/db db:generate",
-    "db:migrate": "turbo -F @vocab/db db:migrate"
+    "db:push": "turbo -F @vocably/db db:push",
+    "db:studio": "turbo -F @vocably/db db:studio",
+    "db:generate": "turbo -F @vocably/db db:generate",
+    "db:migrate": "turbo -F @vocably/db db:migrate"
   },
   "dependencies": {
     "dotenv": "catalog:",
     "zod": "catalog:",
-    "@vocab/env": "workspace:*"
+    "@vocably/env": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.10",
     "@types/bun": "catalog:",
-    "@vocab/config": "workspace:*",
+    "@vocably/config": "workspace:*",
     "turbo": "^2.6.3",
     "typescript": "catalog:"
   },

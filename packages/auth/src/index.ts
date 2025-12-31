@@ -1,6 +1,6 @@
-import { db } from "@vocab/db";
-import * as schema from "@vocab/db/schema/auth";
-import { env } from "@vocab/env/server";
+import { db } from "@vocably/db";
+import * as schema from "@vocably/db/schema/auth";
+import { env } from "@vocably/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 

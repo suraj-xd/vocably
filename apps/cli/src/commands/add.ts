@@ -48,7 +48,7 @@ export const addCommand = new Command("add")
 			if (error instanceof ApiError) {
 				console.error(chalk.dim(`Error: ${error.message}`));
 				if (error.code === "CONFLICT") {
-					console.error(chalk.dim("Tip: Use `vocab list` to see your existing words."));
+					console.error(chalk.dim("Tip: Use `vocably list` to see your existing words."));
 				}
 			} else {
 				console.error(chalk.dim(error instanceof Error ? error.message : String(error)));

@@ -56,7 +56,7 @@ export async function apiRequest<T>(
 
 	if (!config.token) {
 		throw new ApiError(
-			"Not authenticated. Run `vocab auth login` first.",
+			"Not authenticated. Run `vocably auth login` first.",
 			"NOT_AUTHENTICATED",
 			401,
 		);
@@ -92,7 +92,7 @@ export async function apiRequest<T>(
 		// Provide user-friendly messages for common errors
 		if (response.status === 401) {
 			throw new ApiError(
-				"Invalid or expired token. Run `vocab auth login` to re-authenticate.",
+				"Invalid or expired token. Run `vocably auth login` to re-authenticate.",
 				"UNAUTHORIZED",
 				401,
 			);

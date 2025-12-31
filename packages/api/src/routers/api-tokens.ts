@@ -2,14 +2,14 @@ import { z } from "zod";
 import { randomBytes, createHash } from "crypto";
 import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../index";
-import { db } from "@vocab/db";
-import { apiToken } from "@vocab/db/schema";
+import { db } from "@vocably/db";
+import { apiToken } from "@vocably/db/schema";
 import { eq, and } from "drizzle-orm";
 
 // Generate a secure API token
 function generateToken(): string {
 	const randomPart = randomBytes(24).toString("base64url");
-	return `vocab_${randomPart}`;
+	return `vocably_${randomPart}`;
 }
 
 // Hash token for storage

@@ -100,6 +100,8 @@
   /* JetBrains Mono as primary font (loaded via next/font) */
   --font-sans: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+  /* Departure Mono for hero/display text */
+  --font-departure: var(--font-departure-mono), ui-monospace, monospace;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

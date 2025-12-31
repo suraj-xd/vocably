@@ -1,5 +1,5 @@
 {
-  "name": "@vocab/api",
+  "name": "@vocably/api",
   "type": "module",
   "exports": {
     ".": {
@@ -23,12 +23,12 @@
     "@ai-sdk/openai": "^3.0.0",
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",
-    "@vocab/env": "workspace:*",
-    "@vocab/auth": "workspace:*",
-    "@vocab/db": "workspace:*"
+    "@vocably/env": "workspace:*",
+    "@vocably/auth": "workspace:*",
+    "@vocably/db": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "@vocab/config": "workspace:*"
+    "@vocably/config": "workspace:*"
   }
 }
