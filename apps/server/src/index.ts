@@ -9,6 +9,7 @@ import { appRouter } from "@vocably/api/routers/index";
 import { auth } from "@vocably/auth";
 import { env } from "@vocably/env/server";
 import { Elysia } from "elysia";
+import { handleMcpPost, handleMcpGet, handleMcpDelete } from "./mcp";
 
 const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
@@ -60,7 +61,17 @@ const app = new Elysia()
     });
     return response ?? new Response("Not Found", { status: 404 });
   })
+  // MCP endpoints for Claude Desktop / remote MCP clients
+  .post("/mcp", async (context) => {
+    return handleMcpPost(context.request);
+  })
+  .get("/mcp", async (context) => {
+    return handleMcpGet(context.request);
+  })
+  .delete("/mcp", async (context) => {
+    return handleMcpDelete(context.request);
+  })
   .get("/", () => "OK")
-  .listen(3000, () => {
-    console.log("Server is running on http://localhost:3000");
+  .listen(env.PORT, () => {
+    console.log(`Server is running on http://localhost:${env.PORT}`);
   });
