@@ -2,47 +2,36 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import { db } from "@vocably/db";
-import { word, category, apiToken } from "@vocably/db/schema";
-import { eq, desc, and, or, ilike } from "drizzle-orm";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
-// Store active transports by session ID (note: in serverless, this resets between invocations)
-const transports: Record<string, StreamableHTTPServerTransport> = {};
+const API_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
-// Validate API token and get user ID
-async function validateToken(token: string): Promise<string | null> {
-	if (!token.startsWith("vocably_")) {
-		return null;
+// Store active transports by session ID
+const transports: Record<string, { transport: StreamableHTTPServerTransport; token: string }> = {};
+
+// Call the API server
+async function apiRequest<T>(endpoint: string, token: string, body?: Record<string, unknown>): Promise<T> {
+	const response = await fetch(`${API_URL}${endpoint}`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${token}`,
+		},
+		body: body ? JSON.stringify({ json: body }) : undefined,
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(error);
 	}
 
-	const tokenHash = createHash("sha256").update(token).digest("hex");
-
-	const [tokenRecord] = await db
-		.select()
-		.from(apiToken)
-		.where(and(eq(apiToken.tokenHash, tokenHash), eq(apiToken.isActive, true)))
-		.limit(1);
-
-	if (!tokenRecord) {
-		return null;
-	}
-
-	if (tokenRecord.expiresAt && tokenRecord.expiresAt < new Date()) {
-		return null;
-	}
-
-	await db
-		.update(apiToken)
-		.set({ lastUsedAt: new Date() })
-		.where(eq(apiToken.id, tokenRecord.id));
-
-	return tokenRecord.userId;
+	const result = await response.json();
+	return result.json;
 }
 
-// Create MCP server with tools for a specific user
-function createMcpServer(userId: string): McpServer {
+// Create MCP server with tools
+function createMcpServer(token: string): McpServer {
 	const server = new McpServer({
 		name: "vocably",
 		version: "1.0.0",
@@ -62,33 +51,15 @@ function createMcpServer(userId: string): McpServer {
 		},
 		async ({ term, notes, context }) => {
 			try {
-				const termLower = (term as string).toLowerCase().trim();
-
-				const existing = await db.query.word.findFirst({
-					where: and(eq(word.userId, userId), eq(word.term, termLower)),
+				const result = await apiRequest("/rpc/words/add", token, {
+					term: term as string,
+					notes: notes as string | undefined,
+					context: context as string | undefined,
+					source: "mcp",
 				});
 
-				if (existing) {
-					return {
-						content: [{ type: "text", text: `Word "${termLower}" already exists` }],
-						isError: true,
-					};
-				}
-
-				const [newWord] = await db
-					.insert(word)
-					.values({
-						userId,
-						term: termLower,
-						notes: notes as string | undefined,
-						context: context as string | undefined,
-						source: "mcp",
-						aiStatus: "pending",
-					})
-					.returning();
-
 				return {
-					content: [{ type: "text", text: JSON.stringify({ success: true, message: `Added "${termLower}"`, word: newWord }, null, 2) }],
+					content: [{ type: "text", text: JSON.stringify({ success: true, message: `Added "${term}"`, word: result }, null, 2) }],
 				};
 			} catch (error) {
 				return {
@@ -111,15 +82,12 @@ function createMcpServer(userId: string): McpServer {
 		},
 		async ({ limit }) => {
 			try {
-				const words = await db.query.word.findMany({
-					where: eq(word.userId, userId),
+				const result = await apiRequest("/rpc/words/list", token, {
 					limit: (limit as number) || 20,
-					orderBy: desc(word.createdAt),
-					with: { category: true },
 				});
 
 				return {
-					content: [{ type: "text", text: JSON.stringify({ words }, null, 2) }],
+					content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
 				};
 			} catch (error) {
 				return {
@@ -142,12 +110,8 @@ function createMcpServer(userId: string): McpServer {
 		},
 		async ({ term }) => {
 			try {
-				const result = await db.query.word.findFirst({
-					where: and(
-						eq(word.userId, userId),
-						eq(word.term, (term as string).toLowerCase().trim()),
-					),
-					with: { category: true },
+				const result = await apiRequest("/rpc/words/getByTerm", token, {
+					term: term as string,
 				});
 
 				if (!result) {
@@ -182,23 +146,13 @@ function createMcpServer(userId: string): McpServer {
 		},
 		async ({ query, limit }) => {
 			try {
-				const searchPattern = `%${query}%`;
-
-				const results = await db.query.word.findMany({
-					where: and(
-						eq(word.userId, userId),
-						or(
-							ilike(word.term, searchPattern),
-							ilike(word.meaning, searchPattern),
-							ilike(word.notes, searchPattern),
-						),
-					),
+				const result = await apiRequest("/rpc/words/search", token, {
+					query: query as string,
 					limit: (limit as number) || 10,
-					with: { category: true },
 				});
 
 				return {
-					content: [{ type: "text", text: JSON.stringify({ results, query }, null, 2) }],
+					content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
 				};
 			} catch (error) {
 				return {
@@ -221,22 +175,12 @@ function createMcpServer(userId: string): McpServer {
 		},
 		async ({ term }) => {
 			try {
-				const termLower = (term as string).toLowerCase().trim();
-
-				const deleted = await db
-					.delete(word)
-					.where(and(eq(word.userId, userId), eq(word.term, termLower)))
-					.returning();
-
-				if (deleted.length === 0) {
-					return {
-						content: [{ type: "text", text: `Word "${termLower}" not found` }],
-						isError: true,
-					};
-				}
+				await apiRequest("/rpc/words/remove", token, {
+					term: term as string,
+				});
 
 				return {
-					content: [{ type: "text", text: JSON.stringify({ success: true, message: `Removed "${termLower}"` }, null, 2) }],
+					content: [{ type: "text", text: JSON.stringify({ success: true, message: `Removed "${term}"` }, null, 2) }],
 				};
 			} catch (error) {
 				return {
@@ -261,26 +205,18 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	const userId = await validateToken(token);
-	if (!userId) {
-		return NextResponse.json(
-			{ jsonrpc: "2.0", error: { code: -32000, message: "Invalid token" }, id: null },
-			{ status: 401 }
-		);
-	}
-
 	const body = await request.json();
 	const sessionId = request.headers.get("mcp-session-id");
 
 	let transport: StreamableHTTPServerTransport;
 
 	if (sessionId && transports[sessionId]) {
-		transport = transports[sessionId];
+		transport = transports[sessionId].transport;
 	} else if (!sessionId && isInitializeRequest(body)) {
 		transport = new StreamableHTTPServerTransport({
 			sessionIdGenerator: () => randomUUID(),
 			onsessioninitialized: (id) => {
-				transports[id] = transport;
+				transports[id] = { transport, token };
 			},
 			onsessionclosed: (id) => {
 				delete transports[id];
@@ -293,7 +229,7 @@ export async function POST(request: NextRequest) {
 			}
 		};
 
-		const server = createMcpServer(userId);
+		const server = createMcpServer(token);
 		await server.connect(transport);
 	} else {
 		return NextResponse.json(
@@ -357,9 +293,8 @@ export async function GET(request: NextRequest) {
 		return NextResponse.json({ error: "Invalid session" }, { status: 400 });
 	}
 
-	// SSE streaming not fully supported in serverless - return error
 	return NextResponse.json(
-		{ error: "SSE streaming not available in serverless. Use stateful mode." },
+		{ error: "SSE not supported in serverless" },
 		{ status: 501 }
 	);
 }
@@ -371,7 +306,7 @@ export async function DELETE(request: NextRequest) {
 		return NextResponse.json({ error: "Invalid session" }, { status: 400 });
 	}
 
-	const transport = transports[sessionId];
+	const { transport } = transports[sessionId];
 	await transport.close();
 	delete transports[sessionId];
 
