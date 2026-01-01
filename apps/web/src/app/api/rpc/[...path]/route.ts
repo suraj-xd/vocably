@@ -5,8 +5,9 @@ const BACKEND_URL = env.NEXT_PUBLIC_SERVER_URL;
 
 async function proxyRequest(request: NextRequest): Promise<NextResponse> {
 	const url = new URL(request.url);
-	// Forward to backend's /rpc endpoint
-	const targetUrl = `${BACKEND_URL}${url.pathname}${url.search}`;
+	// Strip /api prefix - backend expects /rpc, not /api/rpc
+	const backendPath = url.pathname.replace(/^\/api\/rpc/, "/rpc");
+	const targetUrl = `${BACKEND_URL}${backendPath}${url.search}`;
 
 	// Forward the request to the backend
 	const headers = new Headers(request.headers);
