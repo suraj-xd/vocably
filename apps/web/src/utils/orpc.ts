@@ -4,7 +4,6 @@ import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
-import { env } from "@vocably/env/web";
 import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
@@ -20,8 +19,18 @@ export const queryClient = new QueryClient({
   }),
 });
 
+// Use the frontend's RPC proxy route instead of backend directly
+// This ensures cookies are sent correctly (same-origin request)
+const getRpcUrl = () => {
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/rpc`;
+  }
+  // Server-side: use environment variable or default
+  return `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001"}/api/rpc`;
+};
+
 export const link = new RPCLink({
-  url: `${env.NEXT_PUBLIC_SERVER_URL}/rpc`,
+  url: getRpcUrl(),
   fetch(url, options) {
     return fetch(url, {
       ...options,
