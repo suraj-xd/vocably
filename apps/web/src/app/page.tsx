@@ -114,12 +114,12 @@ export default function Home() {
     "vocably": {
       "command": "npx",
       "args": [
+        "-y",
         "mcp-remote",
-        "https://vocably.surajgaud.com/api/mcp"
-      ],
-      "env": {
-        "AUTHORIZATION": "Bearer YOUR_TOKEN"
-      }
+        "https://vocab.surajgaud.com/api/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_TOKEN"
+      ]
     }
   }
 }`}</code>
@@ -136,12 +136,12 @@ export default function Home() {
     "vocably": {
       "command": "npx",
       "args": [
+        "-y",
         "mcp-remote",
-        "https://vocably.surajgaud.com/api/mcp"
-      ],
-      "env": {
-        "AUTHORIZATION": "Bearer YOUR_TOKEN"
-      }
+        "https://vocab.surajgaud.com/api/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_TOKEN"
+      ]
     }
   }
 }`}</code>

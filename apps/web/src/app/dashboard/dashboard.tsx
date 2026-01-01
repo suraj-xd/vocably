@@ -10,6 +10,7 @@ import { WordGrid } from "@/components/vocab/word-grid";
 import { AddWordDialog } from "@/components/vocab/add-word-dialog";
 import { SearchBar } from "@/components/vocab/search-bar";
 import { WordOfDayCard } from "@/components/vocab/word-of-day-card";
+import { OnboardingDialog } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
 import { client } from "@/utils/orpc";
 
@@ -40,6 +41,16 @@ export default function Dashboard({
 }: { session: typeof authClient.$Infer.Session }) {
 	const [searchQuery] = useQueryState("q", { defaultValue: "", shallow: true });
 	const isSearching = searchQuery.trim().length > 0;
+
+	// Onboarding state
+	const onboardingQuery = useQuery({
+		queryKey: ["onboardingStatus"],
+		queryFn: () => client.userSettings.getOnboardingStatus(),
+		staleTime: Number.POSITIVE_INFINITY, // Don't refetch automatically
+	});
+
+	const showOnboarding =
+		onboardingQuery.data && !onboardingQuery.data.isOnboarded;
 
 	// Paste-to-add state
 	const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -115,6 +126,12 @@ export default function Dashboard({
 
 	return (
 		<div className="space-y-6">
+			{showOnboarding && (
+				<OnboardingDialog
+					initialStep={onboardingQuery.data?.currentStep ?? 0}
+				/>
+			)}
+
 			{!isSearching && <WordOfDayCard onWordAdded={refetchAll} />}
 
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

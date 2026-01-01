@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, jsonb, boolean, integer } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 
 // User settings including AI provider configuration
@@ -26,6 +26,10 @@ export const userSettings = pgTable("user_settings", {
 		showHindiTranslation: boolean;
 		defaultView: "grid" | "list";
 	}>(),
+
+	// Onboarding state
+	isOnboarded: boolean("is_onboarded").default(false).notNull(),
+	onboardingStep: integer("onboarding_step").default(0).notNull(), // 0-5 step index
 });
 
 // Relations

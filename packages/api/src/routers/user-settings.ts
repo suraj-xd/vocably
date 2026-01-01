@@ -13,6 +13,17 @@ const updateSettingsInput = z.object({
 	nativeLanguage: z.string().min(2).max(5).optional(), // ISO 639-1 code
 });
 
+const updateOnboardingInput = z.object({
+	step: z.number().min(0).max(5),
+	data: z
+		.object({
+			nativeLanguage: z.string().min(2).max(5).optional(),
+			aiProvider: z.enum(["openai", "anthropic", "google"]).optional(),
+			aiApiKey: z.string().optional(),
+		})
+		.optional(),
+});
+
 export const userSettingsRouter = {
 	// Get user settings
 	get: protectedProcedure.handler(async ({ context }) => {
@@ -112,6 +123,104 @@ export const userSettingsRouter = {
 			.update(userSettings)
 			.set({ aiApiKey: null })
 			.where(eq(userSettings.userId, userId));
+
+		return { success: true };
+	}),
+
+	// Get onboarding status
+	getOnboardingStatus: protectedProcedure.handler(async ({ context }) => {
+		const userId = context.session?.user?.id;
+		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
+
+		let settings = await db.query.userSettings.findFirst({
+			where: eq(userSettings.userId, userId),
+		});
+
+		// Create default settings if none exist
+		if (!settings) {
+			const [newSettings] = await db
+				.insert(userSettings)
+				.values({
+					userId,
+					aiProvider: "openai",
+					isOnboarded: false,
+					onboardingStep: 0,
+				})
+				.returning();
+			settings = newSettings;
+		}
+
+		return {
+			isOnboarded: settings.isOnboarded,
+			currentStep: settings.onboardingStep,
+			hasApiKey: !!settings.aiApiKey,
+			nativeLanguage: settings.defaultLanguage ?? "en",
+		};
+	}),
+
+	// Update onboarding step and save data
+	updateOnboardingStep: protectedProcedure
+		.input(updateOnboardingInput)
+		.handler(async ({ context, input }) => {
+			const userId = context.session?.user?.id;
+			if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
+
+			const updateData: Record<string, unknown> = {
+				onboardingStep: input.step,
+			};
+
+			// Apply any data from the step
+			if (input.data?.nativeLanguage) {
+				updateData.defaultLanguage = input.data.nativeLanguage;
+			}
+			if (input.data?.aiProvider) {
+				updateData.aiProvider = input.data.aiProvider;
+			}
+			if (input.data?.aiApiKey) {
+				updateData.aiApiKey = input.data.aiApiKey;
+			}
+
+			// Check if settings exist
+			const existing = await db.query.userSettings.findFirst({
+				where: eq(userSettings.userId, userId),
+			});
+
+			if (existing) {
+				await db
+					.update(userSettings)
+					.set(updateData)
+					.where(eq(userSettings.userId, userId));
+			} else {
+				await db.insert(userSettings).values({
+					userId,
+					...updateData,
+				});
+			}
+
+			return { success: true, step: input.step };
+		}),
+
+	// Complete onboarding
+	completeOnboarding: protectedProcedure.handler(async ({ context }) => {
+		const userId = context.session?.user?.id;
+		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
+
+		// Check if settings exist
+		const existing = await db.query.userSettings.findFirst({
+			where: eq(userSettings.userId, userId),
+		});
+
+		if (existing) {
+			await db
+				.update(userSettings)
+				.set({ isOnboarded: true })
+				.where(eq(userSettings.userId, userId));
+		} else {
+			await db.insert(userSettings).values({
+				userId,
+				isOnboarded: true,
+			});
+		}
 
 		return { success: true };
 	}),

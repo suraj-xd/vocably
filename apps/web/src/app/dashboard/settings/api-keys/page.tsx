@@ -287,19 +287,23 @@ export default function ApiKeysPage() {
 						</p>
 					</div>
 					<div>
-						<p className="text-sm font-medium mb-2">MCP Server (Remote)</p>
+						<p className="text-sm font-medium mb-2">MCP Server (Claude Desktop)</p>
 						<p className="text-xs text-muted-foreground mb-2">
-							Add to Claude Desktop config - no installation required
+							Add to Claude Desktop config (~/.claude/claude_desktop_config.json)
 						</p>
 						<div className="relative">
 							<pre className="p-3 bg-secondary font-mono text-xs overflow-x-auto pr-12">
 {`{
   "mcpServers": {
     "vocably": {
-      "url": "https://vocab.surajgaud.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer vocably_your_token_here"
-      }
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://vocab.surajgaud.com/api/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_API_TOKEN"
+      ]
     }
   }
 }`}
@@ -311,10 +315,14 @@ export default function ApiKeysPage() {
 								onClick={() => handleCopy(`{
   "mcpServers": {
     "vocably": {
-      "url": "https://vocab.surajgaud.com/api/mcp",
-      "headers": {
-        "Authorization": "Bearer vocably_your_token_here"
-      }
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://vocab.surajgaud.com/api/mcp",
+        "--header",
+        "Authorization: Bearer YOUR_API_TOKEN"
+      ]
     }
   }
 }`, "mcp")}
