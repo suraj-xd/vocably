@@ -11,7 +11,7 @@ export interface CliConfig {
 }
 
 const DEFAULT_CONFIG: CliConfig = {
-	apiUrl: "http://localhost:3000",
+	apiUrl: "https://vocab.surajgaud.com/api",
 };
 
 export function getConfig(): CliConfig {

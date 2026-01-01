@@ -14,9 +14,9 @@ authCommand
 		const spinner = ora("Validating token...").start();
 
 		try {
-			// Validate token format
-			if (!token.startsWith("vocably_")) {
-				spinner.fail(chalk.red("Invalid token format. Token should start with 'vocably_'"));
+			// Validate token format (accept both vocab_ and vocably_ prefixes)
+			if (!token.startsWith("vocab_") && !token.startsWith("vocably_")) {
+				spinner.fail(chalk.red("Invalid token format. Token should start with 'vocab_' or 'vocably_'"));
 				process.exit(1);
 			}
 

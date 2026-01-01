@@ -1,37 +1,38 @@
 # @vocably/cli
 
-Command-line interface for vocabulary management.
+Command-line interface for managing your English vocabulary. Built for Hindi speakers learning English.
 
 ## Installation
 
 ```bash
 npm install -g @vocably/cli
-# or
-bunx @vocably/cli add "serendipity"
 ```
 
-## Setup
+Or run directly with npx:
 
 ```bash
-vocably auth login <token>
+npx @vocably/cli add "serendipity"
 ```
 
-Get your API token from Settings > API Keys in the web dashboard. Token is stored in `~/.vocably/config.json`.
+## Quick Start
+
+1. Get your API token from [vocab.surajgaud.com](https://vocab.surajgaud.com) → Settings → API Keys
+
+2. Authenticate:
+```bash
+vocably auth login <your-token>
+```
+
+3. Start adding words:
+```bash
+vocably add "ephemeral"
+```
 
 ## Commands
 
-### add
+### `vocably add <word>`
 
-```bash
-vocably add <word> [options]
-
-Options:
-  -n, --notes <notes>      Personal notes
-  -c, --context <context>  Where you encountered the word
-  --no-ai                  Skip AI-powered definition
-```
-
-Examples:
+Add a new word to your vocabulary with AI-powered definitions and examples.
 
 ```bash
 vocably add "serendipity"
@@ -39,58 +40,84 @@ vocably add "ephemeral" --notes "heard in a podcast"
 vocably add "ubiquitous" --context "tech article" --no-ai
 ```
 
-### list
+Options:
+- `-n, --notes <notes>` - Personal notes about the word
+- `-c, --context <context>` - Where you encountered the word
+- `--no-ai` - Skip AI-powered definition enrichment
+
+### `vocably list`
+
+List your vocabulary words.
 
 ```bash
-vocably list [options]
+vocably list
+vocably list --limit 50
+vocably list --category "technology"
+```
 
 Options:
-  -l, --limit <number>  Number of words (default: 20)
-  --category <name>     Filter by category
-```
+- `-l, --limit <number>` - Number of words to show (default: 20)
+- `--category <name>` - Filter by category
 
-### search
+### `vocably search <query>`
 
-```bash
-vocably search <query>
-```
-
-### remove
+Search through your vocabulary.
 
 ```bash
-vocably remove <word>
+vocably search "happy"
 ```
 
-### auth
+### `vocably remove <word>`
+
+Remove a word from your vocabulary.
 
 ```bash
-vocably auth login <token>   # Authenticate
+vocably remove "obsolete"
+```
+
+### `vocably auth`
+
+Manage authentication.
+
+```bash
+vocably auth login <token>   # Save your API token
 vocably auth logout          # Remove credentials
-vocably auth status          # Check status
+vocably auth status          # Check authentication status
 ```
 
-### config
+### `vocably config`
+
+View CLI configuration.
 
 ```bash
-vocably config show  # Display configuration
+vocably config show  # Display current configuration
 vocably config path  # Show config file location
+```
+
+## Aliases
+
+Both `vocably` and `vocab` commands are available:
+
+```bash
+vocab add "word"      # Same as vocably add "word"
+vocab list            # Same as vocably list
 ```
 
 ## Configuration
 
-Stored in `~/.vocably/config.json`:
+Configuration is stored in `~/.vocably/config.json`:
 
 ```json
 {
-  "apiUrl": "https://your-api-url",
-  "token": "vocably_xxxx..."
+  "apiUrl": "https://vocab.surajgaud.com/api",
+  "token": "vocab_xxxx..."
 }
 ```
 
-## Development
+## Requirements
 
-```bash
-bun run --filter @vocably/cli dev -- <command>
-bun run --filter @vocably/cli dev -- add "test"
-bun run --filter @vocably/cli dev -- list
-```
+- Node.js 18 or higher
+
+## License
+
+MIT
