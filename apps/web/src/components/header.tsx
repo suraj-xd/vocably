@@ -10,7 +10,7 @@ export default function Header() {
 		<header className="border-b border-border">
 			<div className="flex flex-row items-center justify-between px-4 py-3">
 				<Link href="/" className="text-sm font-medium hover:text-muted-foreground transition-colors">
-					vocab
+					vocably
 				</Link>
 				<div className="flex items-center gap-3">
 					<ModeToggle />

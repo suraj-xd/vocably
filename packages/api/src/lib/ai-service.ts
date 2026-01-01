@@ -7,6 +7,7 @@ import { env } from "@vocably/env/server";
 import { db } from "@vocably/db";
 import { userSettings } from "@vocably/db/schema";
 import { eq } from "drizzle-orm";
+import { getLanguageByCode, getLanguageName, getNativeLanguageName } from "./languages";
 
 // Schema for AI-generated vocabulary data (simplified for compatibility)
 export const vocabularySchema = z.object({
@@ -32,21 +33,47 @@ export const vocabularySchema = z.object({
 
 export type VocabularyData = z.infer<typeof vocabularySchema>;
 
-const SYSTEM_PROMPT = `You are an expert English vocabulary teacher for native Hindi speakers learning English.
+// Generate dynamic system prompt based on user's native language
+function getSystemPrompt(nativeLanguage: string): string {
+	const lang = getLanguageByCode(nativeLanguage);
+	const langName = lang?.name ?? "Hindi";
+	const nativeName = lang?.nativeName ?? "हिन्दी";
 
-Your task is to generate comprehensive vocabulary data that helps Hindi speakers learn and remember English words.
+	// Special case: if native language is English, skip native language content
+	if (nativeLanguage === "en") {
+		return `You are an expert English vocabulary teacher.
+
+Your task is to generate comprehensive vocabulary data that helps learners understand and remember English words.
 
 For the "memorableExplanation" field, use techniques like:
 - VIVID IMAGERY: Paint mental pictures that stick in memory
-- HINDI CONNECTIONS: Link to similar Hindi sounds, words, or concepts
+- WORD ORIGINS: Link to etymology or related words
 - STORIES: Create mini-narratives around the word
 - MNEMONICS: Memory tricks using the word's spelling or sound
 - EMOTIONAL HOOKS: Connect to feelings or experiences
 
 Make explanations that STICK in memory, not just inform. Be creative and engaging.
 
-For Hindi translations, provide accurate Devanagari script translations.
-For Hindi context, explain any connections to Hindi language or Indian culture.`;
+For "hindiTranslation", provide the word itself (since the learner speaks English).
+For "hindiContext", provide interesting etymology, usage notes, or cultural context about the English word.`;
+	}
+
+	return `You are an expert English vocabulary teacher for native ${langName} (${nativeName}) speakers learning English.
+
+Your task is to generate comprehensive vocabulary data that helps ${langName} speakers learn and remember English words.
+
+For the "memorableExplanation" field, use techniques like:
+- VIVID IMAGERY: Paint mental pictures that stick in memory
+- ${langName.toUpperCase()} CONNECTIONS: Link to similar ${langName} sounds, words, or concepts
+- STORIES: Create mini-narratives around the word
+- MNEMONICS: Memory tricks using the word's spelling or sound
+- EMOTIONAL HOOKS: Connect to feelings or experiences
+
+Make explanations that STICK in memory, not just inform. Be creative and engaging.
+
+For "hindiTranslation", provide accurate translations in ${nativeName} script/writing system.
+For "hindiContext", explain any connections to ${langName} language or culture that ${langName} speakers would relate to.`;
+}
 
 // Get user's AI settings from database
 async function getUserAISettings(userId: string) {
@@ -100,6 +127,7 @@ export async function generateVocabularyData(
 ): Promise<{ data: VocabularyData; provider: string } | null> {
 	// Get user's AI settings
 	const settings = await getUserAISettings(userId);
+	const nativeLanguage = settings?.defaultLanguage ?? "en";
 	const result = getAIModel(settings?.aiProvider ?? null, settings?.aiApiKey ?? null);
 
 	if (!result) {
@@ -111,14 +139,20 @@ export async function generateVocabularyData(
 
 	try {
 		const contextInfo = context ? ` Context: "${context}"` : "";
+		const langName = getLanguageName(nativeLanguage);
+		const nativeName = getNativeLanguageName(nativeLanguage);
 
 		const { output } = await generateText({
 			model,
 			output: Output.object({
 				schema: vocabularySchema,
 			}),
-			system: SYSTEM_PROMPT,
-			prompt: `Generate vocabulary data for: "${term}"${contextInfo}`,
+			system: getSystemPrompt(nativeLanguage),
+			prompt: `Generate vocabulary data for: "${term}"${contextInfo}
+
+IMPORTANT:
+- For "hindiTranslation", provide the translation in ${langName} (${nativeName})
+- For "hindiContext", provide cultural context relevant to ${langName} speakers`,
 		});
 
 		if (!output) {

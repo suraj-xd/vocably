@@ -10,6 +10,7 @@ const updateSettingsInput = z.object({
 	aiApiKey: z.string().optional(),
 	aiModel: z.string().optional(),
 	theme: z.enum(["light", "dark", "system"]).optional(),
+	nativeLanguage: z.string().min(2).max(5).optional(), // ISO 639-1 code
 });
 
 export const userSettingsRouter = {
@@ -40,6 +41,7 @@ export const userSettingsRouter = {
 			aiProvider: settings.aiProvider,
 			aiModel: settings.aiModel,
 			theme: settings.theme,
+			nativeLanguage: settings.defaultLanguage ?? "en",
 			hasApiKey: !!settings.aiApiKey,
 			// Mask the API key - show first 8 chars only
 			apiKeyPreview: settings.aiApiKey
@@ -67,6 +69,7 @@ export const userSettingsRouter = {
 					aiApiKey: input.aiApiKey ?? existing.aiApiKey,
 					aiModel: input.aiModel ?? existing.aiModel,
 					theme: input.theme ?? existing.theme,
+					defaultLanguage: input.nativeLanguage ?? existing.defaultLanguage,
 				})
 				.where(eq(userSettings.userId, userId))
 				.returning();
@@ -74,6 +77,7 @@ export const userSettingsRouter = {
 			return {
 				success: true,
 				aiProvider: updated.aiProvider,
+				nativeLanguage: updated.defaultLanguage,
 				hasApiKey: !!updated.aiApiKey,
 			};
 		} else {
@@ -86,12 +90,14 @@ export const userSettingsRouter = {
 					aiApiKey: input.aiApiKey,
 					aiModel: input.aiModel,
 					theme: input.theme ?? "system",
+					defaultLanguage: input.nativeLanguage ?? "en",
 				})
 				.returning();
 
 			return {
 				success: true,
 				aiProvider: created.aiProvider,
+				nativeLanguage: created.defaultLanguage,
 				hasApiKey: !!created.aiApiKey,
 			};
 		}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Key, Bot, Settings } from "lucide-react";
+import { ArrowLeft, Key, Bot, Settings, Globe } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,11 @@ const settingsNav = [
     href: "/dashboard/settings",
     label: "General",
     icon: Settings,
+  },
+  {
+    href: "/dashboard/settings/language",
+    label: "Native Language",
+    icon: Globe,
   },
   {
     href: "/dashboard/settings/api-keys",

@@ -235,8 +235,8 @@ export default function AiConfigPage() {
 					<ul className="list-disc list-inside space-y-1 ml-2">
 						<li>Definition and meaning</li>
 						<li>Part of speech and pronunciation</li>
-						<li>Memorable explanation (tailored for Hindi speakers)</li>
-						<li>Hindi translation and context</li>
+						<li>Memorable explanation (tailored for your native language)</li>
+						<li>Translation and cultural context in your native language</li>
 						<li>Usage examples (2-3 sentences)</li>
 						<li>Synonyms and antonyms</li>
 						<li>Difficulty level</li>

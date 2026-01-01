@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpeakButton } from "@/components/speak-button";
 import { AddableWord } from "@/components/vocab/addable-word";
+import { getLanguageName } from "@/components/language-selector";
 import { client } from "@/utils/orpc";
 
 export default function WordDetailPage() {
@@ -20,6 +21,11 @@ export default function WordDetailPage() {
 		queryKey: ["words", "get", wordId],
 		queryFn: () => client.words.get({ id: wordId }),
 		enabled: !!wordId,
+	});
+
+	const { data: settings } = useQuery({
+		queryKey: ["userSettings"],
+		queryFn: () => client.userSettings.get(),
 	});
 
 	async function handleDelete() {
@@ -130,11 +136,13 @@ export default function WordDetailPage() {
 					</Card>
 				)}
 
-				{/* Hindi Translation */}
+				{/* Native Language Translation */}
 				{(word.hindiTranslation || word.hindiContext) && (
 					<Card>
 						<CardHeader>
-							<CardTitle className="text-lg">Hindi Context</CardTitle>
+							<CardTitle className="text-lg">
+								{getLanguageName(settings?.nativeLanguage ?? "hi")} Context
+							</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-2">
 							{word.hindiTranslation && (
