@@ -96,38 +96,121 @@ export default function Home() {
 					</div>
 				</section>
 
-				{/* Install Section */}
+				{/* AI Integration Section */}
+				<section className="container mx-auto max-w-5xl px-4 py-16 border-t border-border">
+					<h2 className="text-xs text-muted-foreground uppercase tracking-wider mb-8">
+						AI Integration
+					</h2>
+					<div className="grid gap-8">
+						<div className="grid md:grid-cols-2 gap-8">
+							<div>
+								<p className="text-sm font-medium mb-2">Claude Desktop</p>
+								<p className="text-xs text-muted-foreground mb-4">
+									Add to your claude_desktop_config.json
+								</p>
+								<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
+									<code>{`{
+  "mcpServers": {
+    "vocably": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://vocably.surajgaud.com/api/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}`}</code>
+								</pre>
+							</div>
+							<div>
+								<p className="text-sm font-medium mb-2">Claude Code</p>
+								<p className="text-xs text-muted-foreground mb-4">
+									Add to your .mcp.json or settings
+								</p>
+								<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
+									<code>{`{
+  "mcpServers": {
+    "vocably": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://vocably.surajgaud.com/api/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer YOUR_TOKEN"
+      }
+    }
+  }
+}`}</code>
+								</pre>
+							</div>
+						</div>
+						<div className="bg-card border border-border p-4">
+							<p className="text-sm font-medium mb-2">Available Tools</p>
+							<div className="grid md:grid-cols-5 gap-4 text-xs">
+								<div>
+									<code className="text-muted-foreground">add-word</code>
+									<p className="text-muted-foreground mt-1">Add new vocabulary</p>
+								</div>
+								<div>
+									<code className="text-muted-foreground">list-words</code>
+									<p className="text-muted-foreground mt-1">List your words</p>
+								</div>
+								<div>
+									<code className="text-muted-foreground">get-word</code>
+									<p className="text-muted-foreground mt-1">Get word details</p>
+								</div>
+								<div>
+									<code className="text-muted-foreground">search-words</code>
+									<p className="text-muted-foreground mt-1">Search vocabulary</p>
+								</div>
+								<div>
+									<code className="text-muted-foreground">remove-word</code>
+									<p className="text-muted-foreground mt-1">Remove a word</p>
+								</div>
+							</div>
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Get your API token from{" "}
+							<Link
+								href="/dashboard/settings/api-keys"
+								className="underline hover:text-foreground transition-colors"
+							>
+								Settings → API Keys
+							</Link>{" "}
+							after signing up.
+						</p>
+					</div>
+				</section>
+
+				{/* Quick Start Section */}
 				<section className="container mx-auto max-w-5xl px-4 py-16 border-t border-border">
 					<h2 className="text-xs text-muted-foreground uppercase tracking-wider mb-8">
 						Quick start
 					</h2>
 					<div className="grid md:grid-cols-2 gap-8">
 						<div>
-							<p className="text-sm mb-4">Install the CLI</p>
+							<p className="text-sm font-medium mb-2">1. Create an account</p>
+							<p className="text-xs text-muted-foreground mb-4">
+								Sign up to get your API token
+							</p>
+							<Link href="/login">
+								<Button variant="outline" className="text-xs">
+									Get Started
+								</Button>
+							</Link>
+						</div>
+						<div>
+							<p className="text-sm font-medium mb-2">2. Install the CLI</p>
+							<p className="text-xs text-muted-foreground mb-4">
+								Optional: manage vocabulary from terminal
+							</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto">
 								<code>npm install -g @vocably/cli</code>
 							</pre>
-						</div>
-						<div>
-							<p className="text-sm mb-4">Connect to MCP Server</p>
-							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
-								<code>{`{
-  "command": "npx",
-  "args": ["mcp-remote", "https://vocably.surajgaud.com/api/mcp"],
-  "env": {
-    "AUTHORIZATION": "Bearer YOUR_API_TOKEN"
-  }
-}`}</code>
-							</pre>
-							<p className="text-xs text-muted-foreground mt-2">
-								Get your API token from{" "}
-								<Link
-									href="/dashboard/settings/api-keys"
-									className="underline hover:text-foreground transition-colors"
-								>
-									Settings → API Keys
-								</Link>
-							</p>
 						</div>
 					</div>
 				</section>
