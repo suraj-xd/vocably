@@ -109,13 +109,23 @@ export default function Home() {
 							</pre>
 						</div>
 						<div>
-							<p className="text-sm mb-4">Connect Claude Desktop</p>
+							<p className="text-sm mb-4">Connect to MCP Server</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
-								<code>{`"vocably": {
-  "url": "https://vocab.surajgaud.com/api/mcp",
-  "headers": { "Authorization": "Bearer ..." }
+								<code>{`{
+  "command": "npx",
+  "args": ["mcp-remote", "https://vocab-mcp.vercel.app/mcp"]
 }`}</code>
 							</pre>
+							<p className="text-xs text-muted-foreground mt-2">
+								<Link
+									href="https://vocab-mcp.vercel.app"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="underline hover:text-foreground transition-colors"
+								>
+									View MCP Server →
+								</Link>
+							</p>
 						</div>
 					</div>
 				</section>

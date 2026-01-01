@@ -1,0 +1,7 @@
+{
+	"buildCommand": "npx xmcp build",
+	"outputDirectory": ".xmcp",
+	"framework": null,
+	"installCommand": "npm install",
+	"public": true
+}
