@@ -209,7 +209,7 @@ export default function Home() {
 								Optional: manage vocabulary from terminal
 							</p>
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto">
-								<code>npm install -g @vocably/cli</code>
+								<code>npm install -g vocably-cli</code>
 							</pre>
 						</div>
 					</div>

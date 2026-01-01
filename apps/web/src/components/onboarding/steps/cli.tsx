@@ -9,17 +9,17 @@ const INSTALL_COMMANDS = [
 	{
 		id: "npm",
 		label: "npm",
-		command: "npm install -g @vocably/cli",
+		command: "npm install -g vocably-cli",
 	},
 	{
 		id: "bun",
 		label: "bun",
-		command: "bun add -g @vocably/cli",
+		command: "bun add -g vocably-cli",
 	},
 	{
 		id: "pnpm",
 		label: "pnpm",
-		command: "pnpm add -g @vocably/cli",
+		command: "pnpm add -g vocably-cli",
 	},
 ] as const;
 

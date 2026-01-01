@@ -1,22 +1,25 @@
 {
-  "name": "@vocably/cli",
+  "name": "vocably-cli",
   "version": "0.1.0",
   "description": "Vocabulary management CLI for Hindi speakers learning English",
   "type": "module",
   "bin": {
-    "vocably": "./bin/vocab.ts"
+    "vocably": "./dist/vocab.js",
+    "vocab": "./dist/vocab.js"
   },
   "scripts": {
     "dev": "bun run bin/vocab.ts",
-    "build": "bun build ./bin/vocab.ts --outdir ./dist --target node",
-    "check-types": "tsc --noEmit"
+    "build": "bun build ./bin/vocab.ts --outdir ./dist --target node && node -e \"const fs = require('fs'); const f = './dist/vocab.js'; let c = fs.readFileSync(f, 'utf8'); c = c.replace(/^#!.*\\n/gm, ''); fs.writeFileSync(f, '#!/usr/bin/env node\\n' + c);\"",
+    "check-types": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
     "vocabulary",
     "english",
     "hindi",
     "learning",
-    "cli"
+    "cli",
+    "language"
   ],
   "repository": {
     "type": "git",
@@ -24,16 +27,21 @@
     "directory": "apps/cli"
   },
   "homepage": "https://github.com/suraj-xd/vocably#readme",
+  "bugs": {
+    "url": "https://github.com/suraj-xd/vocably/issues"
+  },
   "license": "MIT",
   "author": "suraj-xd",
   "engines": {
-    "bun": ">=1.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
-    "bin",
-    "src",
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "commander": "^13.1.0",
     "chalk": "^5.4.1",
@@ -42,6 +50,7 @@
   "devDependencies": {
     "@vocably/config": "workspace:*",
     "typescript": "catalog:",
-    "@types/bun": "catalog:"
+    "@types/bun": "catalog:",
+    "@types/node": "^22.0.0"
   }
 }
