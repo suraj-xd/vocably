@@ -113,17 +113,19 @@ export default function Home() {
 							<pre className="text-xs bg-card p-4 border border-border overflow-x-auto whitespace-pre">
 								<code>{`{
   "command": "npx",
-  "args": ["mcp-remote", "https://vocab-mcp.vercel.app/mcp"]
+  "args": ["mcp-remote", "https://vocably.surajgaud.com/api/mcp"],
+  "env": {
+    "AUTHORIZATION": "Bearer YOUR_API_TOKEN"
+  }
 }`}</code>
 							</pre>
 							<p className="text-xs text-muted-foreground mt-2">
+								Get your API token from{" "}
 								<Link
-									href="https://vocab-mcp.vercel.app"
-									target="_blank"
-									rel="noopener noreferrer"
+									href="/dashboard/settings/api-keys"
 									className="underline hover:text-foreground transition-colors"
 								>
-									View MCP Server →
+									Settings → API Keys
 								</Link>
 							</p>
 						</div>

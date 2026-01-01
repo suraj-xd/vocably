@@ -1,9 +1,9 @@
 {
-  "extends": "@vocably/config/tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", ".xmcp"]
+	"extends": "@vocably/config/tsconfig.base.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src"
+	},
+	"include": ["xmcp-env.d.ts", "src/**/*"],
+	"exclude": ["node_modules", "dist", ".xmcp"]
 }

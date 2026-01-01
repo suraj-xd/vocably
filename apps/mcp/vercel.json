@@ -1,7 +1,0 @@
-{
-	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"framework": "xmcp",
-	"buildCommand": "npx xmcp build --vercel",
-	"outputDirectory": "dist",
-	"installCommand": "npm install"
-}

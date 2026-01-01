@@ -32,11 +32,11 @@
     "dist"
   ],
   "dependencies": {
-    "dotenv": "^17.2.3",
+    "dotenv": "catalog:",
     "xmcp": "^0.5.6",
-    "zod": "^4.1.13"
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "catalog:"
   }
 }
