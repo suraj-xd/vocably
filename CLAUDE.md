@@ -32,7 +32,7 @@ vocably/
 
 ### Authentication
 - **Web**: Better-Auth with email/password + OAuth
-- **CLI/MCP**: API tokens (`vocably_xxxx`) validated server-side
+- **CLI/MCP**: API tokens (`vocab_xxxx` or `vocably_xxxx`) validated server-side
 
 ### Database Schema
 - `word` - Vocabulary words with AI-generated data

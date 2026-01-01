@@ -1,14 +1,67 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
-import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
 
-// Store active transports by session ID
-const transports: Record<string, { transport: StreamableHTTPServerTransport; token: string }> = {};
+// Tool definitions
+const TOOLS = [
+	{
+		name: "add-word",
+		description: "Add a new vocabulary word to your collection",
+		inputSchema: {
+			type: "object",
+			properties: {
+				term: { type: "string", description: "The vocabulary word to add" },
+				notes: { type: "string", description: "Personal notes about the word" },
+				context: { type: "string", description: "Where you encountered the word" },
+			},
+			required: ["term"],
+		},
+	},
+	{
+		name: "list-words",
+		description: "List all vocabulary words",
+		inputSchema: {
+			type: "object",
+			properties: {
+				limit: { type: "number", description: "Maximum number of words", default: 20 },
+			},
+		},
+	},
+	{
+		name: "get-word",
+		description: "Get details about a specific word",
+		inputSchema: {
+			type: "object",
+			properties: {
+				term: { type: "string", description: "The word to look up" },
+			},
+			required: ["term"],
+		},
+	},
+	{
+		name: "search-words",
+		description: "Search words by term or meaning",
+		inputSchema: {
+			type: "object",
+			properties: {
+				query: { type: "string", description: "Search query" },
+				limit: { type: "number", description: "Max results", default: 10 },
+			},
+			required: ["query"],
+		},
+	},
+	{
+		name: "remove-word",
+		description: "Remove a word from vocabulary",
+		inputSchema: {
+			type: "object",
+			properties: {
+				term: { type: "string", description: "The word to remove" },
+			},
+			required: ["term"],
+		},
+	},
+];
 
 // Call the API server
 async function apiRequest<T>(endpoint: string, token: string, body?: Record<string, unknown>): Promise<T> {
@@ -30,288 +83,149 @@ async function apiRequest<T>(endpoint: string, token: string, body?: Record<stri
 	return result.json;
 }
 
-// Create MCP server with tools
-function createMcpServer(token: string): McpServer {
-	const server = new McpServer({
-		name: "vocably",
-		version: "1.0.0",
-	});
+// Execute a tool
+async function executeTool(name: string, args: Record<string, unknown>, token: string) {
+	switch (name) {
+		case "add-word": {
+			const result = await apiRequest("/rpc/words/add", token, {
+				term: args.term,
+				notes: args.notes,
+				context: args.context,
+				source: "mcp",
+			});
+			return { success: true, message: `Added "${args.term}"`, word: result };
+		}
+		case "list-words": {
+			return await apiRequest("/rpc/words/list", token, {
+				limit: args.limit || 20,
+			});
+		}
+		case "get-word": {
+			const result = await apiRequest("/rpc/words/getByTerm", token, {
+				term: args.term,
+			});
+			if (!result) throw new Error(`Word "${args.term}" not found`);
+			return result;
+		}
+		case "search-words": {
+			return await apiRequest("/rpc/words/search", token, {
+				query: args.query,
+				limit: args.limit || 10,
+			});
+		}
+		case "remove-word": {
+			await apiRequest("/rpc/words/remove", token, { term: args.term });
+			return { success: true, message: `Removed "${args.term}"` };
+		}
+		default:
+			throw new Error(`Unknown tool: ${name}`);
+	}
+}
 
-	// Add Word Tool
-	server.registerTool(
-		"add-word",
-		{
-			title: "Add Vocabulary Word",
-			description: "Add a new vocabulary word to your collection",
-			inputSchema: {
-				term: z.string().describe("The vocabulary word to add"),
-				notes: z.string().optional().describe("Personal notes about the word"),
-				context: z.string().optional().describe("Where you encountered the word"),
-			},
-		},
-		async ({ term, notes, context }) => {
-			try {
-				const result = await apiRequest("/rpc/words/add", token, {
-					term: term as string,
-					notes: notes as string | undefined,
-					context: context as string | undefined,
-					source: "mcp",
-				});
+// Handle JSON-RPC request
+function handleRequest(method: string, params: unknown, id: unknown, token: string): Promise<unknown> | unknown {
+	switch (method) {
+		case "initialize":
+			return {
+				jsonrpc: "2.0",
+				id,
+				result: {
+					protocolVersion: "2024-11-05",
+					capabilities: { tools: {} },
+					serverInfo: { name: "vocably", version: "1.0.0" },
+				},
+			};
 
-				return {
-					content: [
-						{
-							type: "text",
-							text: JSON.stringify({ success: true, message: `Added "${term}"`, word: result }, null, 2),
-						},
-					],
-				};
-			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-					isError: true,
-				};
-			}
-		},
-	);
+		case "notifications/initialized":
+			return null; // Notification, no response
 
-	// List Words Tool
-	server.registerTool(
-		"list-words",
-		{
-			title: "List Vocabulary",
-			description: "List all vocabulary words",
-			inputSchema: {
-				limit: z.number().optional().default(20).describe("Maximum number of words"),
-			},
-		},
-		async ({ limit }) => {
-			try {
-				const result = await apiRequest("/rpc/words/list", token, {
-					limit: (limit as number) || 20,
-				});
+		case "tools/list":
+			return {
+				jsonrpc: "2.0",
+				id,
+				result: { tools: TOOLS },
+			};
 
-				return {
-					content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-				};
-			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-					isError: true,
-				};
-			}
-		},
-	);
-
-	// Get Word Tool
-	server.registerTool(
-		"get-word",
-		{
-			title: "Get Word Details",
-			description: "Get details about a specific word",
-			inputSchema: {
-				term: z.string().describe("The word to look up"),
-			},
-		},
-		async ({ term }) => {
-			try {
-				const result = await apiRequest("/rpc/words/getByTerm", token, {
-					term: term as string,
-				});
-
-				if (!result) {
+		case "tools/call":
+			return (async () => {
+				const { name, arguments: args } = params as { name: string; arguments: Record<string, unknown> };
+				try {
+					const result = await executeTool(name, args || {}, token);
 					return {
-						content: [{ type: "text", text: `Word "${term}" not found` }],
-						isError: true,
+						jsonrpc: "2.0",
+						id,
+						result: {
+							content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+						},
+					};
+				} catch (error) {
+					return {
+						jsonrpc: "2.0",
+						id,
+						result: {
+							content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+							isError: true,
+						},
 					};
 				}
+			})();
 
-				return {
-					content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-				};
-			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-					isError: true,
-				};
-			}
-		},
-	);
-
-	// Search Words Tool
-	server.registerTool(
-		"search-words",
-		{
-			title: "Search Vocabulary",
-			description: "Search words by term or meaning",
-			inputSchema: {
-				query: z.string().describe("Search query"),
-				limit: z.number().optional().default(10).describe("Max results"),
-			},
-		},
-		async ({ query, limit }) => {
-			try {
-				const result = await apiRequest("/rpc/words/search", token, {
-					query: query as string,
-					limit: (limit as number) || 10,
-				});
-
-				return {
-					content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-				};
-			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-					isError: true,
-				};
-			}
-		},
-	);
-
-	// Remove Word Tool
-	server.registerTool(
-		"remove-word",
-		{
-			title: "Remove Word",
-			description: "Remove a word from vocabulary",
-			inputSchema: {
-				term: z.string().describe("The word to remove"),
-			},
-		},
-		async ({ term }) => {
-			try {
-				await apiRequest("/rpc/words/remove", token, {
-					term: term as string,
-				});
-
-				return {
-					content: [{ type: "text", text: JSON.stringify({ success: true, message: `Removed "${term}"` }, null, 2) }],
-				};
-			} catch (error) {
-				return {
-					content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-					isError: true,
-				};
-			}
-		},
-	);
-
-	return server;
+		default:
+			return {
+				jsonrpc: "2.0",
+				id,
+				error: { code: -32601, message: `Method not found: ${method}` },
+			};
+	}
 }
 
 export async function POST(request: NextRequest) {
-	const authHeader = request.headers.get("authorization");
-	const token = authHeader?.replace("Bearer ", "");
+	try {
+		const authHeader = request.headers.get("authorization");
+		const token = authHeader?.replace("Bearer ", "");
 
-	if (!token) {
+		if (!token) {
+			return NextResponse.json(
+				{ jsonrpc: "2.0", error: { code: -32000, message: "Authorization required" }, id: null },
+				{ status: 401 },
+			);
+		}
+
+		const body = await request.json();
+
+		// Handle batch requests
+		if (Array.isArray(body)) {
+			const responses = await Promise.all(
+				body.map(async (req) => {
+					const result = handleRequest(req.method, req.params, req.id, token);
+					return result instanceof Promise ? await result : result;
+				})
+			);
+			return NextResponse.json(responses.filter(Boolean));
+		}
+
+		// Handle single request
+		const response = handleRequest(body.method, body.params, body.id, token);
+		const result = response instanceof Promise ? await response : response;
+
+		if (result === null) {
+			return new NextResponse(null, { status: 204 });
+		}
+
+		return NextResponse.json(result);
+	} catch (error) {
+		console.error("MCP Error:", error);
 		return NextResponse.json(
-			{ jsonrpc: "2.0", error: { code: -32000, message: "Authorization required. Pass your API token in the Authorization header." }, id: null },
-			{ status: 401 },
+			{ jsonrpc: "2.0", error: { code: -32603, message: error instanceof Error ? error.message : "Internal error" }, id: null },
+			{ status: 500 },
 		);
 	}
-
-	const body = await request.json();
-	const sessionId = request.headers.get("mcp-session-id");
-
-	let transport: StreamableHTTPServerTransport;
-
-	if (sessionId && transports[sessionId]) {
-		transport = transports[sessionId].transport;
-	} else if (!sessionId && isInitializeRequest(body)) {
-		transport = new StreamableHTTPServerTransport({
-			sessionIdGenerator: () => randomUUID(),
-			onsessioninitialized: (id) => {
-				transports[id] = { transport, token };
-			},
-			onsessionclosed: (id) => {
-				delete transports[id];
-			},
-		});
-
-		transport.onclose = () => {
-			if (transport.sessionId) {
-				delete transports[transport.sessionId];
-			}
-		};
-
-		const server = createMcpServer(token);
-		await server.connect(transport);
-	} else {
-		return NextResponse.json(
-			{ jsonrpc: "2.0", error: { code: -32000, message: "Invalid session" }, id: null },
-			{ status: 400 },
-		);
-	}
-
-	// Handle the request
-	const chunks: string[] = [];
-	let responseHeaders: Record<string, string> = {};
-
-	const mockRes = {
-		setHeader: (name: string, value: string) => {
-			responseHeaders[name.toLowerCase()] = value;
-		},
-		getHeader: (name: string) => responseHeaders[name.toLowerCase()],
-		write: (chunk: string) => {
-			chunks.push(chunk);
-			return true;
-		},
-		end: (chunk?: string) => {
-			if (chunk) chunks.push(chunk);
-		},
-		on: () => mockRes,
-		once: () => mockRes,
-		emit: () => false,
-		removeListener: () => mockRes,
-		writableEnded: false,
-		headersSent: false,
-		flushHeaders: () => {},
-	};
-
-	const mockReq = {
-		method: "POST",
-		headers: Object.fromEntries(request.headers.entries()),
-		body,
-		on: () => mockReq,
-		once: () => mockReq,
-		removeListener: () => mockReq,
-	};
-
-	// biome-ignore lint/suspicious/noExplicitAny: MCP SDK types don't match Next.js types
-	await transport.handleRequest(mockReq as any, mockRes as any, body);
-
-	const responseBody = chunks.join("");
-	const headers: HeadersInit = {
-		"Content-Type": responseHeaders["content-type"] || "application/json",
-	};
-
-	if (responseHeaders["mcp-session-id"]) {
-		headers["mcp-session-id"] = responseHeaders["mcp-session-id"];
-	}
-
-	return new NextResponse(responseBody, { headers });
 }
 
-export async function GET(request: NextRequest) {
-	const sessionId = request.headers.get("mcp-session-id");
-
-	if (!sessionId || !transports[sessionId]) {
-		return NextResponse.json({ error: "Invalid session" }, { status: 400 });
-	}
-
-	return NextResponse.json({ error: "SSE not supported in serverless" }, { status: 501 });
+export async function GET() {
+	return NextResponse.json({ error: "Use POST for JSON-RPC requests" }, { status: 400 });
 }
 
-export async function DELETE(request: NextRequest) {
-	const sessionId = request.headers.get("mcp-session-id");
-
-	if (!sessionId || !transports[sessionId]) {
-		return NextResponse.json({ error: "Invalid session" }, { status: 400 });
-	}
-
-	const { transport } = transports[sessionId];
-	await transport.close();
-	delete transports[sessionId];
-
+export async function DELETE() {
 	return NextResponse.json({ success: true });
 }

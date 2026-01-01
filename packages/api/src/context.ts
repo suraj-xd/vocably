@@ -13,7 +13,8 @@ export type CreateContextOptions = {
 export type AuthType = "session" | "token" | null;
 
 async function validateApiToken(token: string) {
-	if (!token.startsWith("vocably_")) {
+	// Accept both vocab_ and vocably_ prefixes
+	if (!token.startsWith("vocab_") && !token.startsWith("vocably_")) {
 		return null;
 	}
 
@@ -63,7 +64,7 @@ export async function createContext({ context }: CreateContextOptions) {
 
 	// Try API token auth (CLI/MCP)
 	const authHeader = context.request.headers.get("Authorization");
-	if (authHeader?.startsWith("Bearer vocably_")) {
+	if (authHeader?.startsWith("Bearer vocab_") || authHeader?.startsWith("Bearer vocably_")) {
 		const token = authHeader.slice(7); // Remove "Bearer "
 		const tokenData = await validateApiToken(token);
 
