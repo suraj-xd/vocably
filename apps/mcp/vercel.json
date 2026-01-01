@@ -1,7 +1,7 @@
 {
-	"buildCommand": "npx xmcp build",
-	"outputDirectory": ".xmcp",
-	"framework": null,
-	"installCommand": "npm install",
-	"public": true
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"framework": "xmcp",
+	"buildCommand": "npx xmcp build --vercel",
+	"outputDirectory": "dist",
+	"installCommand": "npm install"
 }
