@@ -9,7 +9,7 @@ export default function Header() {
 	return (
 		<header className="border-b border-border">
 			<div className="flex flex-row items-center justify-between px-4 py-3">
-				<Link href="/" className="text-sm font-medium hover:text-muted-foreground transition-colors">
+				<Link href="/" className="text-sm font-medium hover:text-muted-foreground transition-colors font-departure">
 					vocably
 				</Link>
 				<div className="flex items-center gap-3">
