@@ -129,9 +129,11 @@ const removeWordInput = z.object({
 
 const updateWordInput = z.object({
 	id: z.string().uuid(),
+	term: z.string().min(1).optional(),
 	notes: z.string().optional(),
 	context: z.string().optional(),
 	regenerateAI: z.boolean().default(false),
+	clearAI: z.boolean().default(false),
 });
 
 export const wordsRouter = {
@@ -341,6 +343,18 @@ export const wordsRouter = {
 			throw new ORPCError("NOT_FOUND", { message: "Word not found" });
 		}
 
+		// If term is being changed, check for duplicates
+		const newTerm = input.term?.toLowerCase().trim();
+		if (newTerm && newTerm !== existingWord.term) {
+			const duplicate = await db.query.word.findFirst({
+				where: and(eq(word.userId, userId), eq(word.term, newTerm)),
+			});
+
+			if (duplicate) {
+				throw new ORPCError("CONFLICT", { message: `Word "${newTerm}" already exists in your vocabulary` });
+			}
+		}
+
 		// Check if AI regeneration is requested and available
 		const shouldRegenerateAI =
 			input.regenerateAI && (await isAIAvailable(userId));
@@ -350,12 +364,36 @@ export const wordsRouter = {
 			updatedAt: new Date(),
 		};
 
+		// Update term if provided
+		if (newTerm && newTerm !== existingWord.term) {
+			updateData.term = newTerm;
+		}
+
 		// Only set notes/context if they were provided
 		if (input.notes !== undefined) {
 			updateData.notes = input.notes;
 		}
 		if (input.context !== undefined) {
 			updateData.context = input.context;
+		}
+
+		// Clear AI data if requested
+		if (input.clearAI) {
+			updateData.meaning = null;
+			updateData.partOfSpeech = null;
+			updateData.pronunciation = null;
+			updateData.memorableExplanation = null;
+			updateData.hindiTranslation = null;
+			updateData.hindiContext = null;
+			updateData.usageExamples = null;
+			updateData.synonyms = null;
+			updateData.antonyms = null;
+			updateData.difficulty = null;
+			updateData.categoryId = null;
+			updateData.aiGenerated = false;
+			updateData.aiProvider = null;
+			updateData.aiStatus = "idle";
+			updateData.aiError = null;
 		}
 
 		// Set AI status to pending if regenerating
@@ -378,7 +416,7 @@ export const wordsRouter = {
 		if (shouldRegenerateAI) {
 			generateAIInBackground(
 				existingWord.id,
-				existingWord.term,
+				newTerm ?? existingWord.term,
 				userId,
 				input.context ?? existingWord.context ?? undefined,
 			).catch((err) =>
