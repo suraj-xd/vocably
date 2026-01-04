@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Plus, BookOpen } from "lucide-react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { client } from "@/utils/orpc";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -10,8 +11,14 @@ import { toast } from "sonner";
 
 export function WordOfDayBanner() {
 	const router = useRouter();
+	const pathname = usePathname();
 	const { data: session } = authClient.useSession();
 	const [isAdding, setIsAdding] = useState(false);
+
+	// Don't show on dashboard - it already has WordOfDayCard
+	if (pathname?.startsWith("/dashboard")) {
+		return null;
+	}
 
 	const wordQuery = useQuery({
 		queryKey: ["dailyWord", "today"],
