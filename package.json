@@ -47,5 +47,5 @@
     "turbo": "^2.6.3",
     "typescript": "catalog:"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "bun@1.1.42"
 }

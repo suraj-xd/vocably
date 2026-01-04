@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["bun"]
+
+[phases.install]
+cmds = ["bun install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["echo 'Skipping build - Bun runs TypeScript directly'"]
+
+[start]
+cmd = "bun run apps/server/src/index.ts"
