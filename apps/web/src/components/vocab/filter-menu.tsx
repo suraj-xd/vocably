@@ -4,6 +4,7 @@ import { MoreVertical } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
@@ -80,7 +81,9 @@ export function FilterMenu({
 				<MoreVertical className="w-4 h-4" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-80">
-				<DropdownMenuLabel className="text-xs">Filters & Settings</DropdownMenuLabel>
+				<DropdownMenuGroup>
+					<DropdownMenuLabel className="text-xs">Filters & Settings</DropdownMenuLabel>
+				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 
 				{/* Page Size */}
