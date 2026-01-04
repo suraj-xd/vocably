@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { AsciiHero } from "@/components/landing/ascii-hero";
 import { FeatureCard } from "@/components/landing/feature-card";
+import { InteractiveDemoShowcase } from "@/components/landing/interactive-demo-showcase";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
@@ -78,30 +79,8 @@ export default function Home() {
         {/* <span className="font-mono underline text-[#1612D2]">[ vocably-cli ]</span> */}
         {/* <span className="font-mono underline text-[#1612D2]">[ vocably-mcp ]</span> */}
 
-        {/* Features Section */}
-        <section className="container mx-auto max-w-5xl px-4 py-16 border-t border-border">
-          <h2 className="text-xs text-muted-foreground uppercase tracking-wider mb-8">
-            Three ways to learn
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <FeatureCard
-              icon="[WEB]"
-              title="Browser Dashboard"
-              description="Visual interface for managing your vocabulary. Track progress, review words, and see AI-powered insights."
-            />
-            <FeatureCard
-              icon="[CLI]"
-              title="Terminal Power"
-              description="Add words from anywhere in your terminal. Fast, scriptable, and keyboard-driven."
-              code="$ vocab add serendipity"
-            />
-            <FeatureCard
-              icon="[MCP]"
-              title="AI-Native"
-              description="Works directly with Claude. Add and review vocabulary without leaving your conversation."
-            />
-          </div>
-        </section>
+        {/* Interactive Demo Showcase */}
+        <InteractiveDemoShowcase />
 
         {/* How it works */}
         <section className="container mx-auto max-w-5xl px-4 py-16 border-t border-border">
