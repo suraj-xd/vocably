@@ -9,16 +9,16 @@ import { subDays, subMonths } from "date-fns";
 
 import { authClient } from "@/lib/auth-client";
 import { WordGrid } from "@/components/vocab/word-grid";
+import { SkeletonCards } from "@/components/vocab/skeleton-cards";
 import { AddWordDialog } from "@/components/vocab/add-word-dialog";
 import { SearchBar } from "@/components/vocab/search-bar";
 import { WordOfDayCard } from "@/components/vocab/word-of-day-card";
 import { OnboardingDialog } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
-import { PageSizeSelect } from "@/components/vocab/page-size-select";
-import {
-	DateFilter,
-	type DateFilterState,
-} from "@/components/vocab/date-filter";
+import { FilterMenu } from "@/components/vocab/filter-menu";
+import { StatsInsight } from "@/components/vocab/stats-insight";
+import { ActiveFilterChip } from "@/components/vocab/active-filter-chip";
+import type { DateFilterState } from "@/components/vocab/date-filter";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { client } from "@/utils/orpc";
 
@@ -249,40 +249,48 @@ export default function Dashboard({
 
 			{!isSearching && <WordOfDayCard onWordAdded={refetchAll} />}
 
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div>
-					{isError ? (
-						<p className="text-destructive">Failed to load vocabulary</p>
-					) : isSearching ? (
-						<p className="text-muted-foreground">
-							{words.length} {words.length === 1 ? "result" : "results"} for "
-							{searchQuery}"
-						</p>
-					) : (
-						<p className="text-muted-foreground">
-							Showing {words.length} of {total}{" "}
-							{total === 1 ? "word" : "words"}
-						</p>
-					)}
-				</div>
-				<div className="flex items-center gap-3">
-					{!isSearching && (
-						<>
-							<DateFilter value={dateFilter} onChange={setDateFilter} />
-							<PageSizeSelect value={pageSize} onChange={setPageSize} />
-						</>
-					)}
-					<SearchBar />
-					<Button onClick={() => setAddDialogOpen(true)}>
-						<Plus className="w-4 h-4 mr-2" />
-						Add Word
-					</Button>
-					<AddWordDialog
-						open={addDialogOpen}
-						onOpenChange={handleDialogOpenChange}
-						onSuccess={refetchAll}
-						initialTerm={pastedTerm}
-					/>
+			<div className="flex flex-col gap-3">
+				{/* Main header row */}
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+					<div>
+						{isError ? (
+							<p className="text-destructive text-sm">Failed to load vocabulary</p>
+						) : isSearching ? (
+							<p className="text-sm text-muted-foreground">
+								{words.length} {words.length === 1 ? "result" : "results"} for "
+								{searchQuery}"
+							</p>
+						) : (
+							<StatsInsight />
+						)}
+					</div>
+					<div className="flex items-center gap-3 flex-wrap">
+						{!isSearching && (
+							<>
+								<ActiveFilterChip
+									dateFilter={dateFilter}
+									onClear={() => setDateFilter({ preset: "all" })}
+								/>
+								<FilterMenu
+									pageSize={pageSize}
+									onPageSizeChange={setPageSize}
+									dateFilter={dateFilter}
+									onDateFilterChange={setDateFilter}
+								/>
+							</>
+						)}
+						<SearchBar />
+						<Button onClick={() => setAddDialogOpen(true)}>
+							<Plus className="w-4 h-4 mr-2" />
+							Add Word
+						</Button>
+						<AddWordDialog
+							open={addDialogOpen}
+							onOpenChange={handleDialogOpenChange}
+							onSuccess={refetchAll}
+							initialTerm={pastedTerm}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -310,13 +318,8 @@ export default function Dashboard({
 
 						{/* Infinite scroll sentinel */}
 						{!isSearching && hasMore && !isLoading && (
-							<div
-								ref={sentinelRef}
-								className="flex items-center justify-center py-8"
-							>
-								{isLoadingMore && (
-									<Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-								)}
+							<div ref={sentinelRef}>
+								{isLoadingMore && <SkeletonCards count={3} />}
 							</div>
 						)}
 					</>

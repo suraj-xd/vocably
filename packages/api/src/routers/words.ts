@@ -135,6 +135,54 @@ const updateWordInput = z.object({
 });
 
 export const wordsRouter = {
+	// Get vocabulary stats
+	stats: protectedProcedure.handler(async ({ context }) => {
+		const userId = context.session?.user?.id;
+		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
+
+		const now = new Date();
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		yesterday.setHours(0, 0, 0, 0);
+
+		const weekAgo = new Date(now);
+		weekAgo.setDate(weekAgo.getDate() - 7);
+
+		// Get total count
+		const [totalResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(eq(word.userId, userId));
+
+		// Get yesterday count
+		const [yesterdayResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(
+				and(
+					eq(word.userId, userId),
+					gte(word.createdAt, yesterday),
+				),
+			);
+
+		// Get this week count
+		const [weekResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(
+				and(
+					eq(word.userId, userId),
+					gte(word.createdAt, weekAgo),
+				),
+			);
+
+		return {
+			total: totalResult?.count ?? 0,
+			yesterday: yesterdayResult?.count ?? 0,
+			thisWeek: weekResult?.count ?? 0,
+		};
+	}),
+
 	// List all words (paginated)
 	list: protectedProcedure.input(listWordsInput).handler(async ({ context, input }) => {
 		const userId = context.session?.user?.id;
