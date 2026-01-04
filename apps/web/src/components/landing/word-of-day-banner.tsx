@@ -15,16 +15,16 @@ export function WordOfDayBanner() {
 	const { data: session } = authClient.useSession();
 	const [isAdding, setIsAdding] = useState(false);
 
-	// Don't show on dashboard - it already has WordOfDayCard
-	if (pathname?.startsWith("/dashboard")) {
-		return null;
-	}
-
 	const wordQuery = useQuery({
 		queryKey: ["dailyWord", "today"],
 		queryFn: () => client.dailyWord.today(),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
+
+	// Don't show on dashboard - it already has WordOfDayCard
+	if (pathname?.startsWith("/dashboard")) {
+		return null;
+	}
 
 	const handleAdd = async () => {
 		if (!session) {
