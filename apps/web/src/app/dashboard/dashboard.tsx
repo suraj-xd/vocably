@@ -9,7 +9,6 @@ import { subDays, subMonths } from "date-fns";
 
 import { authClient } from "@/lib/auth-client";
 import { WordGrid } from "@/components/vocab/word-grid";
-import { SkeletonCards } from "@/components/vocab/skeleton-cards";
 import { AddWordDialog } from "@/components/vocab/add-word-dialog";
 import { SearchBar } from "@/components/vocab/search-bar";
 import { WordOfDayCard } from "@/components/vocab/word-of-day-card";
@@ -327,16 +326,16 @@ export default function Dashboard({
 							isLoading={isLoading}
 							isSearching={isSearching}
 							searchQuery={searchQuery}
+							loadingMore={!isSearching && isLoadingMore}
 							onUpdate={refetchAll}
 						/>
 
 						{/* Infinite scroll sentinel */}
 						{!isSearching && hasMore && !isLoading && (
-							<div ref={sentinelRef}>
-								{isLoadingMore && <SkeletonCards count={3} />}
-							</div>
+							<div ref={sentinelRef} className="h-4" />
 						)}
 					</>
+
 				)}
 			</div>
 		</div>

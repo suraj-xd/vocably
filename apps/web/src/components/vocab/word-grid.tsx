@@ -20,6 +20,7 @@ interface WordGridProps {
 	isLoading?: boolean;
 	isSearching?: boolean;
 	searchQuery?: string;
+	loadingMore?: boolean;
 	onUpdate?: () => void;
 }
 
@@ -28,6 +29,7 @@ export function WordGrid({
 	isLoading = false,
 	isSearching = false,
 	searchQuery = "",
+	loadingMore = false,
 	onUpdate,
 }: WordGridProps) {
 	// Show skeleton during initial load
@@ -140,11 +142,29 @@ export function WordGrid({
     );
   }
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {words.map((word) => (
-        <WordCard key={word.id} word={word} onUpdate={onUpdate} />
-      ))}
-    </div>
-  );
+	return (
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+			{words.map((word) => (
+				<WordCard key={word.id} word={word} onUpdate={onUpdate} />
+			))}
+			{loadingMore &&
+				Array.from({ length: 3 }).map((_, i) => (
+					<div
+						key={`skeleton-${i}`}
+						className="border border-border bg-card p-6 space-y-4"
+					>
+						<div className="flex items-start justify-between">
+							<div className="h-7 w-32 bg-muted animate-pulse" />
+							<div className="h-5 w-5 bg-muted animate-pulse" />
+						</div>
+						<div className="h-4 w-full bg-muted animate-pulse" />
+						<div className="h-4 w-3/4 bg-muted animate-pulse" />
+						<div className="flex items-center gap-2 pt-2">
+							<div className="h-5 w-16 bg-muted animate-pulse" />
+							<div className="h-5 w-20 bg-muted animate-pulse" />
+						</div>
+					</div>
+				))}
+		</div>
+	);
 }
