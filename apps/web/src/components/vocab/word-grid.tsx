@@ -1,28 +1,60 @@
 "use client";
 
+import { SearchX } from "lucide-react";
 import { WordCard } from "./word-card";
+import { SkeletonCards } from "./skeleton-cards";
 
 interface Word {
-  id: string;
-  term: string;
-  meaning?: string | null;
-  notes?: string | null;
-  context?: string | null;
-  category?: { name: string } | null;
-  difficulty?: string | null;
-  createdAt: Date;
+	id: string;
+	term: string;
+	meaning?: string | null;
+	notes?: string | null;
+	context?: string | null;
+	category?: { name: string } | null;
+	difficulty?: string | null;
+	createdAt: Date;
 }
 
 interface WordGridProps {
-  words: Word[];
-  onUpdate?: () => void;
+	words: Word[];
+	isLoading?: boolean;
+	isSearching?: boolean;
+	searchQuery?: string;
+	onUpdate?: () => void;
 }
 
-export function WordGrid({ words, onUpdate }: WordGridProps) {
-  if (words.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="text-6xl mb-4">
+export function WordGrid({
+	words,
+	isLoading = false,
+	isSearching = false,
+	searchQuery = "",
+	onUpdate,
+}: WordGridProps) {
+	// Show skeleton during initial load
+	if (isLoading) {
+		return <SkeletonCards count={6} />;
+	}
+
+	// Show search empty state
+	if (words.length === 0 && isSearching) {
+		return (
+			<div className="flex flex-col items-center justify-center py-20 text-center">
+				<SearchX className="w-12 h-12 text-muted-foreground mb-4" />
+				<p className="text-muted-foreground">
+					No words found matching "{searchQuery}"
+				</p>
+				<p className="text-sm text-muted-foreground mt-2">
+					Try a different search term or add a new word
+				</p>
+			</div>
+		);
+	}
+
+	// Show empty state when no words at all
+	if (words.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center py-20 text-center">
+				<div className="text-6xl mb-4">
           <svg
             width="100"
             height="100"

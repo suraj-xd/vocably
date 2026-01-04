@@ -3,7 +3,7 @@ import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../index";
 import { db } from "@vocably/db";
 import { word, category, wordRelationship } from "@vocably/db/schema";
-import { eq, desc, and, or, ilike } from "drizzle-orm";
+import { eq, desc, and, or, ilike, gte, lte, count, sql } from "drizzle-orm";
 import { generateVocabularyData, isAIAvailable } from "../lib/ai-service";
 
 // Background AI generation - fire and forget
@@ -106,6 +106,8 @@ const listWordsInput = z.object({
 	limit: z.number().min(1).max(100).default(50),
 	offset: z.number().default(0),
 	category: z.string().optional(),
+	startDate: z.string().datetime().optional(),
+	endDate: z.string().datetime().optional(),
 });
 
 const searchWordsInput = z.object({
@@ -138,22 +140,45 @@ export const wordsRouter = {
 		const userId = context.session?.user?.id;
 		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
 
+		// Build where conditions
+		const conditions = [eq(word.userId, userId)];
+
+		if (input.category) {
+			conditions.push(
+				eq(
+					word.categoryId,
+					db
+						.select({ id: category.id })
+						.from(category)
+						.where(
+							and(eq(category.userId, userId), eq(category.name, input.category)),
+						)
+						.limit(1),
+				),
+			);
+		}
+
+		if (input.startDate) {
+			conditions.push(gte(word.createdAt, new Date(input.startDate)));
+		}
+
+		if (input.endDate) {
+			conditions.push(lte(word.createdAt, new Date(input.endDate)));
+		}
+
+		const whereClause = conditions.length > 1 ? and(...conditions) : conditions[0];
+
+		// Get total count
+		const [totalResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(whereClause);
+
+		const total = totalResult?.count ?? 0;
+
+		// Get paginated words
 		const words = await db.query.word.findMany({
-			where: input.category
-				? and(
-						eq(word.userId, userId),
-						eq(
-							word.categoryId,
-							db
-								.select({ id: category.id })
-								.from(category)
-								.where(
-									and(eq(category.userId, userId), eq(category.name, input.category)),
-								)
-								.limit(1),
-						),
-					)
-				: eq(word.userId, userId),
+			where: whereClause,
 			limit: input.limit,
 			offset: input.offset,
 			orderBy: desc(word.createdAt),
@@ -162,7 +187,11 @@ export const wordsRouter = {
 			},
 		});
 
-		return { words };
+		return {
+			words,
+			total,
+			hasMore: input.offset + words.length < total,
+		};
 	}),
 
 	// Get single word by ID
