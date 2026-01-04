@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
-import { Loader2, SearchX, Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { subDays, subMonths } from "date-fns";
 
 import { authClient } from "@/lib/auth-client";
 import { WordGrid } from "@/components/vocab/word-grid";
@@ -12,6 +14,11 @@ import { SearchBar } from "@/components/vocab/search-bar";
 import { WordOfDayCard } from "@/components/vocab/word-of-day-card";
 import { OnboardingDialog } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
+import { FilterMenu } from "@/components/vocab/filter-menu";
+import { StatsInsight } from "@/components/vocab/stats-insight";
+import { ActiveFilterChip } from "@/components/vocab/active-filter-chip";
+import type { DateFilterState } from "@/components/vocab/date-filter";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 import { client } from "@/utils/orpc";
 
 /**
@@ -42,11 +49,59 @@ export default function Dashboard({
 	const [searchQuery] = useQueryState("q", { defaultValue: "", shallow: true });
 	const isSearching = searchQuery.trim().length > 0;
 
+	// Pagination state
+	const [pageSize, setPageSize] = useLocalStorage("vocab-page-size", 50);
+	const [allWords, setAllWords] = useState<any[]>([]);
+	const [hasMore, setHasMore] = useState(true);
+	const [total, setTotal] = useState(0);
+
+	// Date filter state
+	const [dateFilter, setDateFilter] = useLocalStorage<DateFilterState>(
+		"vocab-date-filter",
+		{ preset: "all" },
+	);
+
+	// Convert date filter to API params
+	const { startDate, endDate } = useMemo(() => {
+		const now = new Date();
+		switch (dateFilter.preset) {
+			case "all":
+				return {};
+			case "7d":
+				return { startDate: subDays(now, 7).toISOString() };
+			case "30d":
+				return { startDate: subDays(now, 30).toISOString() };
+			case "3m":
+				return { startDate: subMonths(now, 3).toISOString() };
+			case "custom": {
+				// Handle both Date objects and ISO strings (from localStorage)
+				const start = dateFilter.customStart;
+				const end = dateFilter.customEnd;
+				return {
+					startDate:
+						start instanceof Date
+							? start.toISOString()
+							: typeof start === "string"
+								? start
+								: undefined,
+					endDate:
+						end instanceof Date
+							? end.toISOString()
+							: typeof end === "string"
+								? end
+								: undefined,
+				};
+			}
+			default:
+				return {};
+		}
+	}, [dateFilter]);
+
 	// Onboarding state
 	const onboardingQuery = useQuery({
 		queryKey: ["onboardingStatus"],
 		queryFn: () => client.userSettings.getOnboardingStatus(),
-		staleTime: Number.POSITIVE_INFINITY, // Don't refetch automatically
+		staleTime: Number.POSITIVE_INFINITY,
 	});
 
 	const showOnboarding =
@@ -59,10 +114,8 @@ export default function Dashboard({
 	// Handle paste event for quick word addition
 	const handlePaste = useCallback(
 		async (e: ClipboardEvent) => {
-			// Only intercept if dialog is closed
 			if (addDialogOpen) return;
 
-			// Don't intercept if user is focused on an input/textarea
 			const activeElement = document.activeElement;
 			if (
 				activeElement instanceof HTMLInputElement ||
@@ -102,64 +155,102 @@ export default function Dashboard({
 		null,
 	);
 
+	// Initial list query
 	const listQuery = useQuery({
-		queryKey: ["words", "list"],
-		queryFn: () => client.words.list({ limit: 50, offset: 0 }),
+		queryKey: ["words", "list", pageSize, startDate, endDate],
+		queryFn: async () => {
+			const result = await client.words.list({
+				limit: pageSize,
+				offset: 0,
+				startDate,
+				endDate,
+			});
+			setAllWords(result.words);
+			setTotal(result.total);
+			setHasMore(result.hasMore);
+			return result;
+		},
 		enabled: !isSearching,
 		refetchInterval: (query) => {
-			// Don't poll if no recent AI operation
 			if (!lastAIOperationTime) return false;
 
 			const now = Date.now();
 			const elapsed = now - lastAIOperationTime;
 
-			// Stop polling after 30 seconds
 			if (elapsed > 30_000) {
 				return false;
 			}
 
-			// Check if any words are still pending
-			const words = query.state.data?.words ?? [];
+			const words = allWords ?? [];
 			const hasPendingWords = words.some(
 				(w) => w.aiStatus === "pending" || w.aiStatus === "generating",
 			);
 
-			// Poll every 5 seconds if we have pending words
 			return hasPendingWords ? 5_000 : false;
 		},
 	});
 
+	// Search query
 	const searchQueryResult = useQuery({
 		queryKey: ["words", "search", searchQuery],
 		queryFn: () => client.words.search({ query: searchQuery, limit: 50 }),
 		enabled: isSearching,
 	});
 
+	// Load more function for infinite scroll
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const loadMore = async () => {
+		if (isLoadingMore || !hasMore || isSearching) return;
+
+		setIsLoadingMore(true);
+		try {
+			const result = await client.words.list({
+				limit: pageSize,
+				offset: allWords.length,
+				startDate,
+				endDate,
+			});
+			setAllWords((prev) => [...prev, ...result.words]);
+			setHasMore(result.hasMore);
+		} catch (error) {
+			console.error("Failed to load more words:", error);
+		} finally {
+			setIsLoadingMore(false);
+		}
+	};
+
+	// Infinite scroll sentinel
+	const { ref: sentinelRef } = useInView({
+		onChange: (inView) => {
+			if (inView && hasMore && !isLoadingMore && !isSearching) {
+				loadMore();
+			}
+		},
+	});
+
 	const activeQuery = isSearching ? searchQueryResult : listQuery;
 	const isLoading = activeQuery.isLoading;
-	const isFetching = activeQuery.isFetching;
 	const isError = activeQuery.isError;
-	const error = activeQuery.error;
 
 	const refetchAll = async () => {
-		const result = await listQuery.refetch();
-		if (isSearching) searchQueryResult.refetch();
+		if (isSearching) {
+			await searchQueryResult.refetch();
+		} else {
+			const result = await listQuery.refetch();
+			const words = result.data?.words ?? [];
+			const hasPendingWords = words.some(
+				(w) => w.aiStatus === "pending" || w.aiStatus === "generating",
+			);
 
-		// Check if any words are pending AI generation
-		const words = result.data?.words ?? [];
-		const hasPendingWords = words.some(
-			(w) => w.aiStatus === "pending" || w.aiStatus === "generating",
-		);
-
-		// Start polling timer if we have pending words
-		if (hasPendingWords) {
-			setLastAIOperationTime(Date.now());
+			if (hasPendingWords) {
+				setLastAIOperationTime(Date.now());
+			}
 		}
 	};
 
 	const words = isSearching
 		? (searchQueryResult.data?.results ?? [])
-		: (listQuery.data?.words ?? []);
+		: allWords;
 
 	return (
 		<div className="space-y-6">
@@ -171,44 +262,52 @@ export default function Dashboard({
 
 			{!isSearching && <WordOfDayCard onWordAdded={refetchAll} />}
 
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div>
-					{isError ? (
-						<p className="text-destructive">Failed to load vocabulary</p>
-					) : isSearching ? (
-						<p className="text-muted-foreground">
-							{words.length} {words.length === 1 ? "result" : "results"} for "
-							{searchQuery}"
-						</p>
-					) : (
-						<p className="text-muted-foreground">
-							{words.length} {words.length === 1 ? "word" : "words"} in your
-							vocabulary
-						</p>
-					)}
-				</div>
-				<div className="flex items-center gap-4">
-					<SearchBar />
-					<Button onClick={() => setAddDialogOpen(true)}>
-						<Plus className="w-4 h-4 mr-2" />
-						Add Word
-					</Button>
-					<AddWordDialog
-						open={addDialogOpen}
-						onOpenChange={handleDialogOpenChange}
-						onSuccess={refetchAll}
-						initialTerm={pastedTerm}
-					/>
+			<div className="flex flex-col gap-3">
+				{/* Main header row */}
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+					<div>
+						{isError ? (
+							<p className="text-destructive text-sm">Failed to load vocabulary</p>
+						) : isSearching ? (
+							<p className="text-sm text-muted-foreground">
+								{words.length} {words.length === 1 ? "result" : "results"} for "
+								{searchQuery}"
+							</p>
+						) : (
+							<StatsInsight />
+						)}
+					</div>
+					<div className="flex items-center gap-3 flex-wrap">
+						{!isSearching && (
+							<>
+								<ActiveFilterChip
+									dateFilter={dateFilter}
+									onClear={() => setDateFilter({ preset: "all" })}
+								/>
+								<FilterMenu
+									pageSize={pageSize}
+									onPageSizeChange={setPageSize}
+									dateFilter={dateFilter}
+									onDateFilterChange={setDateFilter}
+								/>
+							</>
+						)}
+						<SearchBar />
+						<Button onClick={() => setAddDialogOpen(true)}>
+							<Plus className="w-4 h-4 mr-2" />
+							Add Word
+						</Button>
+						<AddWordDialog
+							open={addDialogOpen}
+							onOpenChange={handleDialogOpenChange}
+							onSuccess={refetchAll}
+							initialTerm={pastedTerm}
+						/>
+					</div>
 				</div>
 			</div>
 
 			<div className="relative min-h-[120px]">
-				{isFetching && (
-					<div className="absolute inset-0 flex items-center justify-center bg-background/70">
-						<Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-					</div>
-				)}
-
 				{isError ? (
 					<div className="flex flex-col items-center justify-center py-12 text-center">
 						<p className="text-destructive mb-3">Failed to load vocabulary</p>
@@ -220,18 +319,23 @@ export default function Dashboard({
 							Try again
 						</button>
 					</div>
-				) : isSearching && words.length === 0 && !isLoading ? (
-					<div className="flex flex-col items-center justify-center py-20 text-center">
-						<SearchX className="w-12 h-12 text-muted-foreground mb-4" />
-						<p className="text-muted-foreground">
-							No words found matching "{searchQuery}"
-						</p>
-						<p className="text-sm text-muted-foreground mt-2">
-							Try a different search term or add a new word
-						</p>
-					</div>
 				) : (
-					<WordGrid words={words} onUpdate={refetchAll} />
+					<>
+						<WordGrid
+							words={words}
+							isLoading={isLoading}
+							isSearching={isSearching}
+							searchQuery={searchQuery}
+							loadingMore={!isSearching && isLoadingMore}
+							onUpdate={refetchAll}
+						/>
+
+						{/* Infinite scroll sentinel */}
+						{!isSearching && hasMore && !isLoading && (
+							<div ref={sentinelRef} className="h-4" />
+						)}
+					</>
+
 				)}
 			</div>
 		</div>

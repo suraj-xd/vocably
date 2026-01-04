@@ -1,28 +1,62 @@
 "use client";
 
+import { SearchX } from "lucide-react";
 import { WordCard } from "./word-card";
+import { SkeletonCards } from "./skeleton-cards";
 
 interface Word {
-  id: string;
-  term: string;
-  meaning?: string | null;
-  notes?: string | null;
-  context?: string | null;
-  category?: { name: string } | null;
-  difficulty?: string | null;
-  createdAt: Date;
+	id: string;
+	term: string;
+	meaning?: string | null;
+	notes?: string | null;
+	context?: string | null;
+	category?: { name: string } | null;
+	difficulty?: string | null;
+	createdAt: Date;
 }
 
 interface WordGridProps {
-  words: Word[];
-  onUpdate?: () => void;
+	words: Word[];
+	isLoading?: boolean;
+	isSearching?: boolean;
+	searchQuery?: string;
+	loadingMore?: boolean;
+	onUpdate?: () => void;
 }
 
-export function WordGrid({ words, onUpdate }: WordGridProps) {
-  if (words.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="text-6xl mb-4">
+export function WordGrid({
+	words,
+	isLoading = false,
+	isSearching = false,
+	searchQuery = "",
+	loadingMore = false,
+	onUpdate,
+}: WordGridProps) {
+	// Show skeleton during initial load
+	if (isLoading) {
+		return <SkeletonCards count={6} />;
+	}
+
+	// Show search empty state
+	if (words.length === 0 && isSearching) {
+		return (
+			<div className="flex flex-col items-center justify-center py-20 text-center">
+				<SearchX className="w-12 h-12 text-muted-foreground mb-4" />
+				<p className="text-muted-foreground">
+					No words found matching "{searchQuery}"
+				</p>
+				<p className="text-sm text-muted-foreground mt-2">
+					Try a different search term or add a new word
+				</p>
+			</div>
+		);
+	}
+
+	// Show empty state when no words at all
+	if (words.length === 0) {
+		return (
+			<div className="flex flex-col items-center justify-center py-20 text-center">
+				<div className="text-6xl mb-4">
           <svg
             width="100"
             height="100"
@@ -108,11 +142,29 @@ export function WordGrid({ words, onUpdate }: WordGridProps) {
     );
   }
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {words.map((word) => (
-        <WordCard key={word.id} word={word} onUpdate={onUpdate} />
-      ))}
-    </div>
-  );
+	return (
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+			{words.map((word) => (
+				<WordCard key={word.id} word={word} onUpdate={onUpdate} />
+			))}
+			{loadingMore &&
+				Array.from({ length: 3 }).map((_, i) => (
+					<div
+						key={`skeleton-${i}`}
+						className="border border-border bg-card p-6 space-y-4"
+					>
+						<div className="flex items-start justify-between">
+							<div className="h-7 w-32 bg-muted animate-pulse" />
+							<div className="h-5 w-5 bg-muted animate-pulse" />
+						</div>
+						<div className="h-4 w-full bg-muted animate-pulse" />
+						<div className="h-4 w-3/4 bg-muted animate-pulse" />
+						<div className="flex items-center gap-2 pt-2">
+							<div className="h-5 w-16 bg-muted animate-pulse" />
+							<div className="h-5 w-20 bg-muted animate-pulse" />
+						</div>
+					</div>
+				))}
+		</div>
+	);
 }

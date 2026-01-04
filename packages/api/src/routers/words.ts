@@ -3,7 +3,7 @@ import { ORPCError } from "@orpc/server";
 import { protectedProcedure } from "../index";
 import { db } from "@vocably/db";
 import { word, category, wordRelationship } from "@vocably/db/schema";
-import { eq, desc, and, or, ilike } from "drizzle-orm";
+import { eq, desc, and, or, ilike, gte, lte, count, sql } from "drizzle-orm";
 import { generateVocabularyData, isAIAvailable } from "../lib/ai-service";
 
 // Background AI generation - fire and forget
@@ -106,6 +106,8 @@ const listWordsInput = z.object({
 	limit: z.number().min(1).max(100).default(50),
 	offset: z.number().default(0),
 	category: z.string().optional(),
+	startDate: z.string().datetime().optional(),
+	endDate: z.string().datetime().optional(),
 });
 
 const searchWordsInput = z.object({
@@ -127,33 +129,106 @@ const removeWordInput = z.object({
 
 const updateWordInput = z.object({
 	id: z.string().uuid(),
+	term: z.string().min(1).optional(),
 	notes: z.string().optional(),
 	context: z.string().optional(),
 	regenerateAI: z.boolean().default(false),
+	clearAI: z.boolean().default(false),
 });
 
 export const wordsRouter = {
+	// Get vocabulary stats
+	stats: protectedProcedure.handler(async ({ context }) => {
+		const userId = context.session?.user?.id;
+		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
+
+		const now = new Date();
+		const yesterday = new Date(now);
+		yesterday.setDate(yesterday.getDate() - 1);
+		yesterday.setHours(0, 0, 0, 0);
+
+		const weekAgo = new Date(now);
+		weekAgo.setDate(weekAgo.getDate() - 7);
+
+		// Get total count
+		const [totalResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(eq(word.userId, userId));
+
+		// Get yesterday count
+		const [yesterdayResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(
+				and(
+					eq(word.userId, userId),
+					gte(word.createdAt, yesterday),
+				),
+			);
+
+		// Get this week count
+		const [weekResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(
+				and(
+					eq(word.userId, userId),
+					gte(word.createdAt, weekAgo),
+				),
+			);
+
+		return {
+			total: totalResult?.count ?? 0,
+			yesterday: yesterdayResult?.count ?? 0,
+			thisWeek: weekResult?.count ?? 0,
+		};
+	}),
+
 	// List all words (paginated)
 	list: protectedProcedure.input(listWordsInput).handler(async ({ context, input }) => {
 		const userId = context.session?.user?.id;
 		if (!userId) throw new ORPCError("UNAUTHORIZED", { message: "User not found" });
 
+		// Build where conditions
+		const conditions = [eq(word.userId, userId)];
+
+		if (input.category) {
+			conditions.push(
+				eq(
+					word.categoryId,
+					db
+						.select({ id: category.id })
+						.from(category)
+						.where(
+							and(eq(category.userId, userId), eq(category.name, input.category)),
+						)
+						.limit(1),
+				),
+			);
+		}
+
+		if (input.startDate) {
+			conditions.push(gte(word.createdAt, new Date(input.startDate)));
+		}
+
+		if (input.endDate) {
+			conditions.push(lte(word.createdAt, new Date(input.endDate)));
+		}
+
+		const whereClause = conditions.length > 1 ? and(...conditions) : conditions[0];
+
+		// Get total count
+		const [totalResult] = await db
+			.select({ count: count() })
+			.from(word)
+			.where(whereClause);
+
+		const total = totalResult?.count ?? 0;
+
+		// Get paginated words
 		const words = await db.query.word.findMany({
-			where: input.category
-				? and(
-						eq(word.userId, userId),
-						eq(
-							word.categoryId,
-							db
-								.select({ id: category.id })
-								.from(category)
-								.where(
-									and(eq(category.userId, userId), eq(category.name, input.category)),
-								)
-								.limit(1),
-						),
-					)
-				: eq(word.userId, userId),
+			where: whereClause,
 			limit: input.limit,
 			offset: input.offset,
 			orderBy: desc(word.createdAt),
@@ -162,7 +237,11 @@ export const wordsRouter = {
 			},
 		});
 
-		return { words };
+		return {
+			words,
+			total,
+			hasMore: input.offset + words.length < total,
+		};
 	}),
 
 	// Get single word by ID
@@ -264,6 +343,18 @@ export const wordsRouter = {
 			throw new ORPCError("NOT_FOUND", { message: "Word not found" });
 		}
 
+		// If term is being changed, check for duplicates
+		const newTerm = input.term?.toLowerCase().trim();
+		if (newTerm && newTerm !== existingWord.term) {
+			const duplicate = await db.query.word.findFirst({
+				where: and(eq(word.userId, userId), eq(word.term, newTerm)),
+			});
+
+			if (duplicate) {
+				throw new ORPCError("CONFLICT", { message: `Word "${newTerm}" already exists in your vocabulary` });
+			}
+		}
+
 		// Check if AI regeneration is requested and available
 		const shouldRegenerateAI =
 			input.regenerateAI && (await isAIAvailable(userId));
@@ -273,12 +364,36 @@ export const wordsRouter = {
 			updatedAt: new Date(),
 		};
 
+		// Update term if provided
+		if (newTerm && newTerm !== existingWord.term) {
+			updateData.term = newTerm;
+		}
+
 		// Only set notes/context if they were provided
 		if (input.notes !== undefined) {
 			updateData.notes = input.notes;
 		}
 		if (input.context !== undefined) {
 			updateData.context = input.context;
+		}
+
+		// Clear AI data if requested
+		if (input.clearAI) {
+			updateData.meaning = null;
+			updateData.partOfSpeech = null;
+			updateData.pronunciation = null;
+			updateData.memorableExplanation = null;
+			updateData.hindiTranslation = null;
+			updateData.hindiContext = null;
+			updateData.usageExamples = null;
+			updateData.synonyms = null;
+			updateData.antonyms = null;
+			updateData.difficulty = null;
+			updateData.categoryId = null;
+			updateData.aiGenerated = false;
+			updateData.aiProvider = null;
+			updateData.aiStatus = "idle";
+			updateData.aiError = null;
 		}
 
 		// Set AI status to pending if regenerating
@@ -301,7 +416,7 @@ export const wordsRouter = {
 		if (shouldRegenerateAI) {
 			generateAIInBackground(
 				existingWord.id,
-				existingWord.term,
+				newTerm ?? existingWord.term,
 				userId,
 				input.context ?? existingWord.context ?? undefined,
 			).catch((err) =>

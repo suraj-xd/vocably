@@ -57,18 +57,30 @@ export function AddWordDialog({
 	const [generateAI, setGenerateAI] = useState(true);
 	const [regenerateAI, setRegenerateAI] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [originalTerm, setOriginalTerm] = useState("");
 
 	const queryClient = useQueryClient();
+
+	// Check if term has been edited (only relevant in edit mode)
+	const termHasChanged = isEditMode && term.toLowerCase().trim() !== originalTerm.toLowerCase().trim();
 
 	// Populate form when editing
 	useEffect(() => {
 		if (editWord && open) {
 			setTerm(editWord.term);
+			setOriginalTerm(editWord.term);
 			setNotes(editWord.notes ?? "");
 			setContext(editWord.context ?? "");
 			setRegenerateAI(false);
 		}
 	}, [editWord, open]);
+
+	// Auto-check regenerateAI when term changes
+	useEffect(() => {
+		if (termHasChanged) {
+			setRegenerateAI(true);
+		}
+	}, [termHasChanged]);
 
 	// Reset form when dialog closes
 	useEffect(() => {
@@ -103,15 +115,21 @@ export function AddWordDialog({
 		try {
 			if (isEditMode && editWord) {
 				// Update existing word
+				const clearAI = termHasChanged && !regenerateAI;
+
 				const result = await client.words.update({
 					id: editWord.id,
+					term: termHasChanged ? term.trim() : undefined,
 					notes: notes.trim() || undefined,
 					context: context.trim() || undefined,
 					regenerateAI,
+					clearAI,
 				});
 
 				if (result.aiPending) {
 					toast.success(`Updated "${term}" - AI generating in background`);
+				} else if (clearAI) {
+					toast.success(`Updated "${term}" - AI data cleared`);
 				} else {
 					toast.success(`Updated "${term}"`);
 				}
@@ -173,7 +191,6 @@ export function AddWordDialog({
 							placeholder="serendipity"
 							value={term}
 							onChange={(e) => setTerm(e.target.value)}
-							disabled={isEditMode}
 							autoFocus={!isEditMode}
 						/>
 					</div>
