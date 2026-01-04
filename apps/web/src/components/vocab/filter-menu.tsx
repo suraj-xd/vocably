@@ -34,12 +34,17 @@ export function FilterMenu({
 	dateFilter,
 	onDateFilterChange,
 }: FilterMenuProps) {
-	const [tempCustomStart, setTempCustomStart] = useState<Date | undefined>(
-		dateFilter.customStart,
-	);
-	const [tempCustomEnd, setTempCustomEnd] = useState<Date | undefined>(
-		dateFilter.customEnd,
-	);
+	// Handle both Date objects and ISO strings from localStorage
+	const [tempCustomStart, setTempCustomStart] = useState<Date | undefined>(() => {
+		const start = dateFilter.customStart;
+		if (!start) return undefined;
+		return start instanceof Date ? start : new Date(start);
+	});
+	const [tempCustomEnd, setTempCustomEnd] = useState<Date | undefined>(() => {
+		const end = dateFilter.customEnd;
+		if (!end) return undefined;
+		return end instanceof Date ? end : new Date(end);
+	});
 
 	const handlePresetChange = (preset: DateFilterState["preset"]) => {
 		if (preset === "custom") {

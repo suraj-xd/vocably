@@ -74,11 +74,25 @@ export default function Dashboard({
 				return { startDate: subDays(now, 30).toISOString() };
 			case "3m":
 				return { startDate: subMonths(now, 3).toISOString() };
-			case "custom":
+			case "custom": {
+				// Handle both Date objects and ISO strings (from localStorage)
+				const start = dateFilter.customStart;
+				const end = dateFilter.customEnd;
 				return {
-					startDate: dateFilter.customStart?.toISOString(),
-					endDate: dateFilter.customEnd?.toISOString(),
+					startDate:
+						start instanceof Date
+							? start.toISOString()
+							: typeof start === "string"
+								? start
+								: undefined,
+					endDate:
+						end instanceof Date
+							? end.toISOString()
+							: typeof end === "string"
+								? end
+								: undefined,
 				};
+			}
 			default:
 				return {};
 		}

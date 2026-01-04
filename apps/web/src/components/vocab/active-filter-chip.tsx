@@ -25,11 +25,17 @@ export function ActiveFilterChip({
 				return "Last 30 days";
 			case "3m":
 				return "Last 3 months";
-			case "custom":
-				if (dateFilter.customStart && dateFilter.customEnd) {
-					return `${format(dateFilter.customStart, "MMM d")} - ${format(dateFilter.customEnd, "MMM d")}`;
+			case "custom": {
+				const start = dateFilter.customStart;
+				const end = dateFilter.customEnd;
+				if (start && end) {
+					// Handle both Date objects and ISO strings from localStorage
+					const startDate = start instanceof Date ? start : new Date(start);
+					const endDate = end instanceof Date ? end : new Date(end);
+					return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d")}`;
 				}
 				return "Custom range";
+			}
 		}
 	};
 
