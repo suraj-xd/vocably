@@ -97,10 +97,36 @@ export default function Dashboard({
 		}
 	};
 
+	// Track when we last added/updated a word with AI to trigger polling
+	const [lastAIOperationTime, setLastAIOperationTime] = useState<number | null>(
+		null,
+	);
+
 	const listQuery = useQuery({
 		queryKey: ["words", "list"],
 		queryFn: () => client.words.list({ limit: 50, offset: 0 }),
 		enabled: !isSearching,
+		refetchInterval: (query) => {
+			// Don't poll if no recent AI operation
+			if (!lastAIOperationTime) return false;
+
+			const now = Date.now();
+			const elapsed = now - lastAIOperationTime;
+
+			// Stop polling after 30 seconds
+			if (elapsed > 30_000) {
+				return false;
+			}
+
+			// Check if any words are still pending
+			const words = query.state.data?.words ?? [];
+			const hasPendingWords = words.some(
+				(w) => w.aiStatus === "pending" || w.aiStatus === "generating",
+			);
+
+			// Poll every 5 seconds if we have pending words
+			return hasPendingWords ? 5_000 : false;
+		},
 	});
 
 	const searchQueryResult = useQuery({
@@ -115,9 +141,20 @@ export default function Dashboard({
 	const isError = activeQuery.isError;
 	const error = activeQuery.error;
 
-	const refetchAll = () => {
-		listQuery.refetch();
+	const refetchAll = async () => {
+		const result = await listQuery.refetch();
 		if (isSearching) searchQueryResult.refetch();
+
+		// Check if any words are pending AI generation
+		const words = result.data?.words ?? [];
+		const hasPendingWords = words.some(
+			(w) => w.aiStatus === "pending" || w.aiStatus === "generating",
+		);
+
+		// Start polling timer if we have pending words
+		if (hasPendingWords) {
+			setLastAIOperationTime(Date.now());
+		}
 	};
 
 	const words = isSearching
