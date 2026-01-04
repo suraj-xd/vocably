@@ -7,7 +7,7 @@ export function Footer() {
 				<div>Built with care</div>
 				<div className="flex items-center gap-4">
 					<Link
-						href="https://github.com"
+						href="https://github.com/suraj-xd/vocably"
 						target="_blank"
 						rel="noopener noreferrer"
 						className="hover:text-foreground transition-colors"
