@@ -40,6 +40,9 @@ export default function Home() {
                   <Button>Get Started</Button>
                 </Link>
               )}
+              <Link href="/library">
+                <Button variant="outline">Library</Button>
+              </Link>
             </div>
           </div>
           <h1 className="font-departure text-xl opacity-50 font-light">

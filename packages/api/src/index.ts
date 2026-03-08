@@ -1,4 +1,5 @@
 import { ORPCError, os } from "@orpc/server";
+import { env } from "@vocably/env/server";
 
 import type { Context } from "./context";
 
@@ -18,3 +19,19 @@ const requireAuth = o.middleware(async ({ context, next }) => {
 });
 
 export const protectedProcedure = publicProcedure.use(requireAuth);
+
+const requireAdmin = o.middleware(async ({ context, next }) => {
+  if (!context.session?.user) {
+    throw new ORPCError("UNAUTHORIZED");
+  }
+  if (context.session.user.id !== env.ADMIN_USER_ID) {
+    throw new ORPCError("FORBIDDEN");
+  }
+  return next({
+    context: {
+      session: context.session,
+    },
+  });
+});
+
+export const adminProcedure = publicProcedure.use(requireAdmin);

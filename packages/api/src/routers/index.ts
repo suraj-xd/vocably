@@ -5,6 +5,7 @@ import { wordsRouter } from "./words";
 import { apiTokensRouter } from "./api-tokens";
 import { userSettingsRouter } from "./user-settings";
 import { dailyWordRouter } from "./daily-word";
+import { libraryRouter } from "./library";
 
 export const appRouter = {
 	// Health check
@@ -32,6 +33,9 @@ export const appRouter = {
 
 	// Daily Word of the Day
 	dailyWord: dailyWordRouter,
+
+	// Public library
+	library: libraryRouter,
 };
 
 export type AppRouter = typeof appRouter;

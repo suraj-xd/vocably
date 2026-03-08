@@ -19,6 +19,8 @@ export const env = createEnv({
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
     // Cron job secret for daily word processing
     CRON_SECRET: z.string().optional(),
+    // Admin user ID for library management
+    ADMIN_USER_ID: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
