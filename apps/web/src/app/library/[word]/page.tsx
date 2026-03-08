@@ -1,49 +1,49 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { eq } from "drizzle-orm";
+"use client";
 
-import { db } from "@vocably/db";
-import { libraryWord } from "@vocably/db/schema";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Loader2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpeakButton } from "@/components/speak-button";
+import { client } from "@/utils/orpc";
 
-interface PageProps {
-	params: Promise<{ word: string }>;
-}
+export default function LibraryWordPage() {
+	const params = useParams();
+	const slug = params.word as string;
 
-async function getWord(slug: string) {
-	const result = await db
-		.select()
-		.from(libraryWord)
-		.where(eq(libraryWord.slug, slug))
-		.limit(1);
+	const { data: word, isLoading, error } = useQuery({
+		queryKey: ["library", "getBySlug", slug],
+		queryFn: () => client.library.getBySlug({ slug }),
+		enabled: !!slug,
+	});
 
-	return result[0] ?? null;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-	const { word: slug } = await params;
-	const word = await getWord(slug);
-
-	if (!word) {
-		return { title: "Word Not Found" };
+	if (isLoading) {
+		return (
+			<div className="container mx-auto py-8 px-4">
+				<div className="flex items-center justify-center py-20">
+					<Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+				</div>
+			</div>
+		);
 	}
 
-	return {
-		title: `${word.term} — Vocably Library`,
-		description: word.meaning ?? `Learn the word "${word.term}" on Vocably.`,
-	};
-}
-
-export default async function LibraryWordPage({ params }: PageProps) {
-	const { word: slug } = await params;
-	const word = await getWord(slug);
-
-	if (!word) {
-		notFound();
+	if (error || !word) {
+		return (
+			<div className="container mx-auto py-8 px-4">
+				<Link href="/library">
+					<Button variant="ghost" className="mb-4">
+						<ArrowLeft className="w-4 h-4 mr-2" />
+						Library
+					</Button>
+				</Link>
+				<div className="text-center py-20">
+					<p className="text-destructive">Word not found</p>
+				</div>
+			</div>
+		);
 	}
 
 	return (
