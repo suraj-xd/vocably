@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 
 import "../index.css";
 import Header from "@/components/header";
@@ -39,6 +40,7 @@ export default function RootLayout({
 						<main className="flex-1">{children}</main>
 					</div>
 				</Providers>
+				<Analytics />
 			</body>
 		</html>
 	);
